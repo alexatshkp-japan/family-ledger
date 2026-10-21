@@ -48,7 +48,17 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 body.sheet-open{overflow:hidden}
-body.big{zoom:1.15}
+body.big{font-size:18px}
+body.big .desc .it,body.big .money{font-size:18px}
+body.big .desc .sub,body.big .day-h,body.big .note,body.big label,body.big .lbl,body.big .sync{font-size:15px}
+body.big .lchip,body.big .seg button,body.big .ghost,body.big .primary,body.big .me-chip{font-size:17px}
+body.big .nb{font-size:14px} body.big .nb svg{width:28px;height:28px}
+body.big .hero .big{font-size:42px} body.big .hero .pill b{font-size:20px}
+body.big .hero .lbl2,body.big .hero .foot,body.big .hero .pill span,body.big .hero .budget .bt{font-size:14px}
+body.big .glyph{width:46px;height:46px;font-size:19px} body.big .row{grid-template-columns:46px 1fr auto}
+body.big .stat .v{font-size:19px} body.big .tbl{font-size:15px} body.big .card-h h3{font-size:18px}
+body.big .cat{font-size:14px} body.big .cat .glyph{width:50px;height:50px}
+body.big input,body.big select{font-size:18px} body.big .pnav b{font-size:20px} body.big .settle-mini{font-size:17px}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .setrow input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc)}
 [hidden]{display:none!important}
@@ -108,7 +118,8 @@ input::placeholder{color:var(--muted);opacity:.7}
 .chk input{width:18px;height:18px;accent-color:var(--acc)}
 
 /* period bar */
-.pbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pbar{display:flex;align-items:center;justify-content:space-between;gap:4px 8px;flex-wrap:wrap}
+.pbar .sync{margin-left:auto}
 .pnav{display:flex;align-items:center;gap:4px}
 .pnav b{font-size:18px;font-weight:700;min-width:7.2em;text-align:center}
 .icbtn{width:38px;height:38px;border-radius:50%;border:0;background:transparent;color:var(--ink);cursor:pointer;display:grid;place-items:center}
@@ -219,7 +230,7 @@ input::placeholder{color:var(--muted);opacity:.7}
 .famrow b{flex:1}
 .famrow .mini{background:var(--acc-soft);color:var(--ink)}
 .status{font-size:14px;background:var(--sunk);border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:8px}
-.copybox{width:100%;min-height:8em;font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
+.copybox{width:100%;min-height:8em;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
 ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:grid;gap:4px}
 
 /* bottom nav */
@@ -236,7 +247,7 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
 /* sheets */
 .scrim{position:fixed;inset:0;background:var(--scrim);z-index:40}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;display:flex;justify-content:center;pointer-events:none}
-.sheet .panel{pointer-events:auto;width:100%;max-width:560px;max-height:92vh;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;
+.sheet .panel{pointer-events:auto;width:100%;max-width:560px;max-height:92vh;max-height:92dvh;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;
   padding:8px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
   box-shadow:0 -8px 30px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:14px}
 @media (prefers-reduced-motion:no-preference){.sheet .panel{animation:rise .22s ease-out}.scrim{animation:fade .2s ease-out}
@@ -268,6 +279,23 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
 .auth .logo p{margin:0;color:var(--muted)}
 .auth .card{display:flex;flex-direction:column;gap:14px;padding:20px}
 .gate{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px 20px;text-align:center;color:var(--muted)}
+.searchbar{display:flex;gap:8px;align-items:center}
+.searchbar input{flex:1}
+.autotag{font-size:11px;padding:1px 6px;border-radius:6px;background:var(--acc-soft);color:var(--ink);margin-left:6px;vertical-align:2px;font-weight:500}
+.rlist{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.rlist li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.rlist li:first-child{border-top:0}
+.rlist .desc{flex:1}
+.chiplist{display:flex;flex-wrap:wrap;gap:8px}
+.cchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 4px;font-size:14px;background:var(--bg)}
+.cchip .glyph{width:26px;height:26px;border-radius:8px;font-size:12px}
+.cchip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0 6px}
+.cat.addcat .glyph{background:transparent;color:var(--muted);border:1.5px dashed var(--line)}
+.repeat{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.repeat input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc);flex:none}
+.repeat label{color:var(--ink);font-size:14px;letter-spacing:0}
+.repeat select{width:auto;padding:5px 8px;border-radius:8px;font-size:16px}
+.sync.off{color:var(--danger)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);
   padding:10px 16px;border-radius:12px;font-size:15px;max-width:calc(100% - 32px);z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{transform:translate(-50%,8px);opacity:0}}}
@@ -312,11 +340,17 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
         <b id="mLabel"></b>
         <button id="mNext" class="icbtn" type="button" aria-label="下個月"></button>
       </div>
-      <span class="sync"><span id="syncTxt"></span><button type="button" class="icbtn" id="refreshBtn" aria-label="重新整理" style="width:32px;height:32px"></button></span>
+      <span class="sync" id="syncBox"><span id="syncTxt"></span><button type="button" class="icbtn" id="searchBtn" aria-label="搜尋記錄" style="width:32px;height:32px"></button><button type="button" class="icbtn" id="refreshBtn" aria-label="重新整理" style="width:32px;height:32px"></button></span>
     </div>
-    <div id="hero"></div>
-    <div id="settleMini"></div>
-    <div id="list" class="stack" aria-label="記錄"></div>
+    <div id="searchArea" class="stack" hidden>
+      <div class="searchbar"><input id="searchIn" type="search" placeholder="搵項目、備註、類別、金額…" autocomplete="off" aria-label="搜尋記錄"><button type="button" class="ghost" id="searchClose">取消</button></div>
+      <div id="searchRes" class="stack"></div>
+    </div>
+    <div id="ledgerMain" class="stack">
+      <div id="hero"></div>
+      <div id="settleMini"></div>
+      <div id="list" class="stack" aria-label="記錄"></div>
+    </div>
   </main>
 
   <!-- 報表 -->
@@ -366,12 +400,15 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
       <div class="card-h" style="margin:0"><h3>顯示</h3></div>
       <label class="setrow" for="bigMode"><span>大字模式<br><span class="note">字同掣大啲，適合長輩。只影響呢部機。</span></span><input type="checkbox" id="bigMode"></label>
     </section>
+    <section class="card stack" id="recurCard"></section>
+    <section class="card stack" id="catCard"></section>
     <section class="card stack" id="backup"></section>
     <section class="card stack">
       <div class="card-h"><h3>加到手機主畫面</h3></div>
       <p class="note"><b>Android（Chrome）：</b>撳右上角「⋮」→「加到主畫面」或「安裝應用程式」。</p>
       <p class="note"><b>iPhone（Safari）：</b>撳下面「分享」→「加入主畫面」。</p>
-      <p class="note">之後撳「數」字圖示就直接開，好似一個 app 咁。</p>
+      <p class="note">之後撳「數」字圖示就直接開，好似一個 app 咁。iPhone 加到主畫面之後，第一次打開要再登入一次。</p>
+      <p class="note">冇網絡都可以打開同記帳，記錄會先存喺部機，有網絡時自動上傳。</p>
     </section>
     <section class="card stack">
       <div class="card-h"><h3>記錄安全</h3></div>
@@ -403,12 +440,14 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
     </div>
     <div class="amt out" id="amtBox"><span>HK$</span><input id="fAmt" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="金額"></div>
     <div class="catgrid" id="cats" role="radiogroup" aria-label="類別"></div>
+    <div class="inline" id="newCatRow" hidden><div class="field"><label for="newCat">新類別名稱（最多 6 個字）</label><input id="newCat" maxlength="6" autocomplete="off" placeholder="例如：寵物、保險"></div><button type="button" class="ghost" id="newCatAdd">加入</button></div>
     <div class="field"><label for="fItem" id="itemLbl">消費項目</label><input id="fItem" maxlength="60" autocomplete="off" placeholder="例如：街市買餸、八達通增值"></div>
     <div class="field" id="whoField" hidden><label for="fWho" id="whoLbl">邊個付錢</label><select id="fWho"></select></div>
     <div class="two">
       <div class="field"><label for="fDate">日期</label><input id="fDate" type="date" min="2010-01-01"></div>
       <div class="field"><label for="fNote">備註</label><input id="fNote" maxlength="120" autocomplete="off" placeholder="可留空"></div>
     </div>
+    <div class="repeat" id="repeatRow"><input type="checkbox" id="fRepeat"><label for="fRepeat">每個月自動記低</label><span>· 每月</span><select id="fDay" aria-label="每月幾號"></select><span>號</span></div>
     <p id="formErr" class="err" hidden></p>
     <button id="fSubmit" class="primary" type="submit">記低</button>
   </form></div>
@@ -426,6 +465,8 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
 
 <script>
 (() => {
+if (!Element.prototype.replaceChildren) Element.prototype.replaceChildren=function(){ while (this.lastChild) this.removeChild(this.lastChild); this.append.apply(this, arguments); };
+if (!Array.prototype.flat) Array.prototype.flat=function(){ return [].concat.apply([], this); };
 const CATS = {
   out:['餐飲','街市超市','交通','水電煤','日用品','家居','娛樂','醫療','教育','其他'],
   in:['人工','花紅','家用','投資收益','股息利息','租金','利是禮金','其他收入']
@@ -487,6 +528,7 @@ const ICONS = {
   gear:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z',
   left:'M15 5l-7 7 7 7', right:'M9 5l7 7-7 7', close:'M6 6l12 12M18 6L6 18',
   refresh:'M20 11a8 8 0 10-2.3 5.7M20 4v7h-7',
+  search:'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
   share:'M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v12M7 8l5-5 5 5',
   copy:'M9 9h11v11H9zM5 15H4V4h11v1'
 };
@@ -497,7 +539,7 @@ const S = { me:null, profile:null, fams:[], keyCache:new Map(), decCache:new Map
   cur:'me', tab: ['ledger','report','family','settings'].includes(lsGet('tab')) ? lsGet('tab') : 'ledger',
   view: lsGet('view')==='year' ? 'year' : 'month', month:thisMonth(), year:new Date().getFullYear(),
   byMonth:{}, loaded:false, members:[], tok:0, mtok:0, lastSync:null,
-  type:'out', cat:{out:CATS.out[0], in:CATS.in[0]}, pending:null, authMode:'login', editing:null, famMeta:null };
+  type:'out', cat:{out:CATS.out[0], in:CATS.in[0]}, pending:null, authMode:'login', editing:null, famMeta:null, offline:false, allRows:null, stok:0 };
 
 let toastT;
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, 2800); }
@@ -506,12 +548,13 @@ const ERR = {
   no_user:'搵唔到呢個名。係咪未開帳戶？可以撳上面「開新帳戶」。', no_family:'搵唔到呢個家庭。請檢查家庭名稱同密碼（名稱唔分大細階，密碼要一模一樣）；第一次用請撳「建立新家庭」。',
   locked:'試錯太多次，為咗安全，請 15 分鐘後再試。', name_taken:'呢個名已經有人用咗，請改另一個（例如加埋姓氏）。',
   old_backend:'管理員未更新 Apps Script（要貼上新嘅 Code.gs 再部署新版本）。', not_setup:'管理員未完成設定（喺 Apps Script 執行 setup）。',
-  bad_request:'資料格式唔啱，請重新整理頁面再試。', bad_auth:'登入資料唔完整，請重新登入。', bad_op:'程式版本唔夾，請叫管理員更新 Apps Script。', not_found:'呢筆記錄已經唔存在（可能俾人刪咗），請重新整理。'
+  bad_request:'資料格式唔啱，請重新整理頁面再試。', bad_auth:'登入資料唔完整，請重新登入。', bad_op:'程式版本唔夾，請叫管理員更新 Apps Script。', not_found:'呢筆記錄已經唔存在（可能俾人刪咗），請重新整理。', need_online:'呢樣要有網絡先做到，請連上網絡再試。'
 };
 const errText = e => ERR[e && e.code] || ERR.server;
 
 /* ---------- server ---------- */
 async function call(req){
+  if (navigator.onLine===false) throw {code:'network'};
   let res;
   try { res = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(req), redirect:'follow'}); }
   catch(e){ throw {code:'network'}; }
@@ -556,9 +599,52 @@ const ledKey = () => { const f=curFam(); return f ? f.key : S.me.key; };
 const myMid = () => { const f=curFam(); return f ? f.mid : null; };
 const myName = () => (S.profile && S.profile.name) || (S.me && S.me.name) || '';
 
+const ck = (...p) => 'ukei:'+S.me.nameKey+':'+p.join(':');
+function cacheGet(k){ try { return JSON.parse(localStorage.getItem(k)||'null'); } catch { return null; } }
+function cacheSet(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+const outbox = () => (S.me && cacheGet(ck('outbox'))) || [];
+const outboxSet = b => cacheSet(ck('outbox'), b);
+function outboxPush(it){
+  let b=outbox();
+  if (it.kind==='edit'){ const i=b.findIndex(x=>x.kind==='add' && x.led===it.led && x.row.id===it.row.id); if (i>=0){ b[i]={...b[i], row:it.row}; outboxSet(b); return; } b=b.filter(x=>!(x.kind==='edit' && x.led===it.led && x.row.id===it.row.id)); }
+  if (it.kind==='del'){ const i=b.findIndex(x=>x.kind==='add' && x.led===it.led && x.row.id===it.eid); if (i>=0){ b.splice(i,1); outboxSet(b.filter(x=>!(x.kind==='edit' && x.led===it.led && x.row.id===it.eid))); return; } }
+  b.push(it); outboxSet(b);
+}
+function authFor(led){ if (led==='me') return uAuth(); const f=S.fams.find(x=>x.fid===led); return f ? fAuth(f) : null; }
+function keyFor(led){ if (led==='me') return S.me.key; const f=S.fams.find(x=>x.fid===led); return f ? f.key : null; }
+async function sendOp(it){
+  const auth=authFor(it.led); if (!auth) throw {code:'bad_auth'};
+  if (it.kind==='add') return callRetry({op:'add', auth, entries:[it.row], dedupe:true});
+  if (it.kind==='edit') return callRetry({op:'edit', auth, entry:it.row});
+  return callRetry({op:'del', auth, id:it.eid});
+}
+async function writeOp(it){
+  try { await sendOp(it); return 'sent'; }
+  catch(e){ if (e && e.code==='network'){ outboxPush(it); S.offline=true; setSync(); return 'queued'; } throw e; }
+}
+let flushing=false;
+async function flushOutbox(){
+  if (flushing || !S.me || navigator.onLine===false || !outbox().length) return;
+  flushing=true; let sent=0;
+  try {
+    for (;;){
+      const b=outbox(); if (!b.length) break;
+      try { await sendOp(b[0]); sent++; }
+      catch(e){ if (e && e.code==='network') break; toast('有一筆離線記錄上傳唔到：'+errText(e)); }
+      outboxSet(outbox().slice(1));
+    }
+  } finally {
+    flushing=false;
+    if (sent){ S.offline=false; toast(`已上傳 ${sent} 筆離線記錄`); S.allRows=null; loadYear(true); } else setSync();
+  }
+}
+window.addEventListener('online', ()=>{ S.offline=false; flushOutbox(); refreshAll(); });
+window.addEventListener('offline', ()=>{ S.offline=true; setSync(); });
 async function fetchProfile(){
-  const r=await callRetry({op:'login', nameKey:S.me.nameKey, token:S.me.token});
-  const p=await decJSON(S.me.key, r.profile.iv, r.profile.ct);
+  let prof;
+  try { const r=await callRetry({op:'login', nameKey:S.me.nameKey, token:S.me.token}); prof=r.profile; cacheSet(ck('prof'), prof); }
+  catch(e){ if (!e || e.code!=='network') throw e; prof=cacheGet(ck('prof')); if (!prof) throw e; S.offline=true; }
+  const p=await decJSON(S.me.key, prof.iv, prof.ct);
   if (!Array.isArray(p.families)) p.families=[];
   return p;
 }
@@ -593,6 +679,7 @@ async function startSession(name, nameKey, token, keyRaw, remember){
   const last=lsGet('ledger');
   setLedger(last && S.fams.some(f=>f.fid===last) ? last : 'me');
   setTab(S.tab);
+  flushOutbox();
 }
 function showAuth(msg, name){
   $('app').hidden=true; $('bnav').hidden=true; $('authView').hidden=false; closeSheets();
@@ -644,7 +731,7 @@ function setTab(t){
   ['ledger','report','family','settings'].forEach(x=>{ $('tab-'+x).hidden = x!==t; const b=$('nav-'+x); if (t===x) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   if (t==='report') renderReport();
   if (t==='family') renderFamPanel(true);
-  if (t==='settings'){ renderAccount(); renderBackup(); }
+  if (t==='settings'){ renderAccount(); renderBackup(); renderRecur(); renderCatCard(); }
   window.scrollTo({top:0});
 }
 document.querySelectorAll('.nb').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -657,15 +744,15 @@ function setLedger(key){
   $('bnav').className = 'bnav ' + (key==='me' ? 'acc-me' : 'acc-fam');
   $('addSheet').className = key==='me' ? 'acc-me' : 'acc-fam';
   $('detailSheet').className = $('addSheet').className;
-  renderChips();
+  renderChips(); S.allRows=null; closeSearch();
   loadYear(); if (curFam()) loadMembers();
-  renderWho(); syncTypeUI(); renderAll(); renderFamPanel(true); renderBackup();
+  renderWho(); syncTypeUI(); renderAll(); renderFamPanel(true); renderBackup(); renderRecur(); renderCatCard();
 }
 const validId = s => typeof s==='string' && /^[A-Za-z0-9_-]{1,100}$/.test(s);
 function clean(x){
   const amt=Number(x.amt); if (!isFinite(amt) || amt<=0 || amt>=1e9) return null;
   const type = x.type==='in' ? 'in' : 'out', list=CATS[type];
-  return { id:String(x.id||''), type, amt:Math.round(amt*100)/100, cat:list.includes(x.cat)?x.cat:list[list.length-1],
+  return { id:String(x.id||''), type, amt:Math.round(amt*100)/100, cat:(typeof x.cat==='string' && x.cat.trim()) ? x.cat.trim().slice(0,10) : list[list.length-1], auto:!!x.auto,
     item:String(x.item||'').slice(0,60), note:String(x.note||'').slice(0,120),
     date:/^\d{4}-\d{2}-\d{2}$/.test(String(x.date))?x.date:'', by:validId(x.by)?x.by:null, bn:String(x.bn||'').slice(0,20),
     rec:validId(x.rec)?x.rec:null, at:Number(x.at)||0 };
@@ -675,26 +762,49 @@ async function decodeRow(x, key, ledger){
   if (c && c.ct===x.ct) return c.val;
   try { const p=await decJSON(key, x.iv, x.ct); const val=clean({...p, id:x.id, at:x.at}); if (val) val.m = val.date ? val.date.slice(0,7) : x.m; S.decCache.set(ck,{ct:x.ct,val}); return val; } catch { return null; }
 }
+async function applyRows(rows, tok, year, ledger, key){
+  let list=(await Promise.all(rows.map(x=>decodeRow(x,key,ledger)))).filter(Boolean);
+  for (const it of outbox()){
+    if (it.led!==ledger) continue;
+    if (it.kind==='del'){ list=list.filter(e=>e.id!==it.eid); continue; }
+    const e=await decodeRow(it.row, key, ledger); if (!e) continue;
+    list=list.filter(x=>x.id!==e.id); if (e.m.slice(0,4)===String(year)) list.push(e);
+  }
+  if (tok!==S.tok) return false;
+  const bm={}; monthsOf(year).forEach(m=>bm[m]=[]);
+  list.forEach(e=>{ (bm[e.m]=bm[e.m]||[]).push(e); });
+  S.byMonth=bm; S.loaded=true; renderAll();
+  return true;
+}
 async function loadYear(quiet){
   if (!S.me) return;
-  const tok=++S.tok, year=S.year, ledger=S.cur, key=ledKey(), auth=ledAuth();
-  if (!quiet){ S.byMonth={}; S.loaded=false; renderAll(); }
-  setSync('同步緊…');
+  const tok=++S.tok, year=S.year, ledger=S.cur, key=ledKey(), auth=ledAuth(), lk=ck('rows',ledger,year);
+  if (!quiet){ S.byMonth={}; S.loaded=false; const cached=cacheGet(lk); if (cached) await applyRows(cached, tok, year, ledger, key); else renderAll(); }
+  if (tok!==S.tok) return;
+  if (!S.offline) setSync('同步緊…');
   try {
     const r=await callRetry({op:'list', auth, year:String(year)});
-    const list=(await Promise.all(r.rows.map(x=>decodeRow(x,key,ledger)))).filter(Boolean);
+    cacheSet(lk, r.rows);
+    S.offline=false; S.lastSync=new Date();
+    if (await applyRows(r.rows, tok, year, ledger, key)){ setSync(); if (!quiet) runRecurring(); }
+  } catch(e){
     if (tok!==S.tok) return;
-    const bm={}; monthsOf(year).forEach(m=>bm[m]=[]);
-    list.forEach(e=>{ (bm[e.m]=bm[e.m]||[]).push(e); });
-    S.byMonth=bm; S.loaded=true; S.lastSync=new Date(); setSync(); renderAll();
-  } catch(e){ if (tok!==S.tok) return; S.loaded=true; setSync('同步唔到'); renderAll(); toast(errText(e)); }
+    if (e && e.code==='network'){ S.offline=true; if (!S.loaded){ S.loaded=true; renderAll(); } setSync(); }
+    else { S.loaded=true; setSync('同步唔到'); renderAll(); toast(errText(e)); }
+  }
 }
-function setSync(txt){ $('syncTxt').textContent = txt || (S.lastSync ? `${hhmm(S.lastSync)} 更新` : ''); }
+function setSync(txt){
+  const n=S.me?outbox().length:0;
+  $('syncBox').classList.toggle('off', !txt && S.offline);
+  $('syncTxt').textContent = txt || (S.offline ? '離線'+(n?` · ${n} 筆未上傳`:'') : n ? `${n} 筆未上傳` : S.lastSync ? `${hhmm(S.lastSync)} 更新` : '');
+}
 async function loadMembers(){
   const fam=curFam(); if (!fam) return;
   const t=++S.mtok;
   try {
-    const r=await callRetry({op:'members', auth:fAuth(fam)});
+    let r;
+    try { r=await callRetry({op:'members', auth:fAuth(fam)}); cacheSet(ck('mem',fam.fid), {rows:r.rows, meta:r.meta}); }
+    catch(e){ if (!e || e.code!=='network') throw e; r=cacheGet(ck('mem',fam.fid)); if (!r) return; }
     const arr=[];
     for (const x of r.rows){ try { const p=await decJSON(fam.key, x.iv, x.ct); arr.push({uid:x.mid, nick:String(p.nick||'').slice(0,20), proxy:!!p.proxy, split:p.split!==false}); } catch {} }
     let meta=null;
@@ -703,10 +813,11 @@ async function loadMembers(){
     S.famMeta = meta || {name:fam.name};
     const me=fam.mid;
     arr.sort((a,b)=>(a.uid===me?-1:b.uid===me?1:0) || (a.proxy-b.proxy) || a.nick.localeCompare(b.nick,'zh-HK'));
-    S.members=arr; renderWho(); renderAll(); renderFamPanel(false);
+    S.members=arr; renderWho(); renderAll(); renderFamPanel(false); renderRecur(); renderCatCard(); buildCats();
+    runRecurring();
   } catch(e){ if (t===S.mtok) toast(errText(e)); }
 }
-function refreshAll(){ if (!S.me) return; loadYear(true); if (curFam()) loadMembers(); }
+function refreshAll(){ if (!S.me) return; S.allRows=null; flushOutbox(); loadYear(true); if (curFam()) loadMembers(); }
 setInterval(()=>{ if (document.visibilityState==='visible') refreshAll(); }, 60000);
 document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState==='visible' && S.lastSync && Date.now()-S.lastSync>15000) refreshAll(); });
 
@@ -751,15 +862,49 @@ function syncTypeUI(){
   $('amtBox').className='amt '+t;
   buildCats();
 }
+const ledgerMeta = () => curFam() ? S.famMeta : S.profile;
+function customCats(type){ const m=ledgerMeta(); const c=m && m.cats && Array.isArray(m.cats[type]) ? m.cats[type] : []; return c.filter(x=>typeof x==='string' && x).slice(0,30); }
+function catsFor(type){ return [...CATS[type], ...customCats(type).filter(c=>!CATS[type].includes(c))]; }
 function buildCats(){
   const box=$('cats'); box.replaceChildren();
-  CATS[S.type].forEach(c=>box.append(h('button',{type:'button',class:'cat '+S.type,role:'radio','aria-checked':String(c===S.cat[S.type]),'data-cat':c,onclick:()=>{ S.cat[S.type]=c; box.querySelectorAll('.cat').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.cat===c))); }},
+  const list=catsFor(S.type); if (S.cat[S.type] && !list.includes(S.cat[S.type])) list.push(S.cat[S.type]);
+  list.forEach(c=>box.append(h('button',{type:'button',class:'cat '+S.type,role:'radio','aria-checked':String(c===S.cat[S.type]),'data-cat':c,onclick:()=>{ S.cat[S.type]=c; box.querySelectorAll('.cat[data-cat]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.cat===c))); }},
     glyph(S.type,c), h('span',{text:c}))));
+  box.append(h('button',{type:'button',class:'cat addcat','aria-label':'加自訂類別',onclick:()=>{ const r=$('newCatRow'); r.hidden=!r.hidden; if (!r.hidden) $('newCat').focus(); }}, h('span',{class:'glyph',text:'＋'}), h('span',{text:'自訂'})));
 }
-function openSheet(id){ $(id).hidden=false; document.body.classList.add('sheet-open'); }
-function closeSheets(){ ['addSheet','detailSheet'].forEach(id=>$(id).hidden=true); document.body.classList.remove('sheet-open'); }
-document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', closeSheets));
+async function addCustomCat(type, v){
+  v=String(v||'').trim().slice(0,6);
+  if (!v) throw {code:'bad_name'};
+  await saveLedgerMeta(m=>{ m.cats=m.cats||{}; const arr=Array.isArray(m.cats[type])?m.cats[type]:[]; if (!arr.includes(v) && !CATS[type].includes(v)) arr.push(v); m.cats[type]=arr; });
+  return v;
+}
+$('newCatAdd').addEventListener('click', async ()=>{
+  const b=$('newCatAdd'), v=$('newCat').value.trim().slice(0,6);
+  if (!v){ toast('請輸入類別名稱'); return; }
+  b.disabled=true;
+  try { await addCustomCat(S.type, v); S.cat[S.type]=v; $('newCat').value=''; $('newCatRow').hidden=true; buildCats(); renderCatCard(); toast(`已加入類別「${v}」`); }
+  catch(e){ toast(e && e.code==='network' ? ERR.need_online : errText(e)); } finally { b.disabled=false; }
+});
+// 手機「返回」鍵／手勢：有彈出視窗時先關視窗，唔會離開 app
+function openSheet(id){
+  $(id).hidden=false; document.body.classList.add('sheet-open');
+  if (!(history.state && history.state.sheet)) { try { history.pushState({sheet:1}, ''); } catch {} }
+}
+function closeSheets(opt){
+  const was=['addSheet','detailSheet'].some(id=>!$(id).hidden);
+  ['addSheet','detailSheet'].forEach(id=>$(id).hidden=true); document.body.classList.remove('sheet-open');
+  const keep = opt && (opt.keep || opt.fromPop);
+  if (was && !keep && history.state && history.state.sheet) { try { history.back(); } catch {} }
+}
+window.addEventListener('popstate', ()=>closeSheets({fromPop:true}));
+document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', ()=>closeSheets()));
 document.addEventListener('keydown', e=>{ if (e.key==='Escape') closeSheets(); });
+function syncRepeat(){
+  const d=$('fDate').value; const day=d ? Math.min(28, Number(d.slice(8,10))||1) : 1;
+  if (!$('fDay').options.length){ for (let i=1;i<=28;i++) $('fDay').append(h('option',{value:String(i),text:String(i)})); }
+  if (!$('fRepeat').checked) $('fDay').value=String(day);
+}
+$('fDate').addEventListener('change', syncRepeat);
 function openAdd(e){
   const editing = e && e.id ? e : null;
   if (S.editing && !editing){ $('fAmt').value=''; $('fItem').value=''; $('fNote').value=''; $('fDate').value=todayStr(); }
@@ -768,6 +913,7 @@ function openAdd(e){
   $('formErr').hidden=true; syncTypeUI(); renderWho();
   if (editing && editing.by && [...$('fWho').options].some(o=>o.value===editing.by)) $('fWho').value=editing.by;
   if (!$('fDate').value) $('fDate').value=todayStr();
+  $('repeatRow').hidden=!!editing; $('fRepeat').checked=false; $('newCatRow').hidden=true; syncRepeat();
   openSheet('addSheet'); setTimeout(()=>$('fAmt').focus(), 60);
 }
 $('fab').addEventListener('click', ()=>openAdd());
@@ -809,6 +955,18 @@ function renderHero(){
     h('div',{class:'foot'}, h('span',{text: avg || `共 ${E.length} 筆`}), h('span',{text:`今年累積 ${signed(ytd)}`})),
     bud));
 }
+async function saveFamMeta(fam, mutate){
+  const r=await callRetry({op:'members', auth:fAuth(fam)});
+  let meta={name:fam.name};
+  if (r.meta && r.meta.ct){ try { meta=await decJSON(fam.key, r.meta.iv, r.meta.ct); } catch {} }
+  mutate(meta); if (!meta.name) meta.name=fam.name;
+  const e=await encJSON(fam.key, meta);
+  await call({op:'famMeta', auth:fAuth(fam), meta:e});
+  cacheSet(ck('mem',fam.fid), {rows:r.rows, meta:e});
+  if (S.cur===fam.fid) S.famMeta=meta;
+  return meta;
+}
+async function saveLedgerMeta(mutate){ const f=curFam(); if (f) return saveFamMeta(f, mutate); await saveProfile(mutate); return S.profile; }
 function budgetOf(){ const f=curFam(); const v=f ? (S.famMeta&&S.famMeta.budget) : (S.profile&&S.profile.budget); return Number(v)>0 ? Number(v) : 0; }
 function openBudget(){
   const fam=curFam(), p=$('detailPanel'); p.replaceChildren();
@@ -817,15 +975,9 @@ function openBudget(){
   const err=h('p',{class:'err',hidden:true});
   const saveB=async v=>{
     try {
-      if (fam){
-        if (!S.famMeta) throw {code:'server'};
-        const meta={...S.famMeta, name:S.famMeta.name||fam.name}; if (v>0) meta.budget=v; else delete meta.budget;
-        const e=await encJSON(fam.key, meta);
-        await call({op:'famMeta', auth:fAuth(fam), meta:e});
-        S.famMeta=meta;
-      } else await saveProfile(pr=>{ if (v>0) pr.budget=v; else delete pr.budget; });
+      await saveLedgerMeta(m=>{ if (v>0) m.budget=v; else delete m.budget; });
       closeSheets(); renderAll(); toast(v>0 ? `每月預算已設為 ${sm(v)}` : '已取消每月預算');
-    } catch(e){ err.textContent=errText(e); err.hidden=false; }
+    } catch(e){ err.textContent=e && e.code==='network' ? ERR.need_online : errText(e); err.hidden=false; }
   };
   p.append(h('div',{class:'grab'}),
     h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:'每月預算'}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:closeSheets}, icon('close'))),
@@ -861,14 +1013,16 @@ function renderList(){
     const t=totals(list);
     const right=[t.inc?`收 ${sm(t.inc)}`:'', t.exp?`支 ${sm(t.exp)}`:''].filter(Boolean).join(' · ');
     box.append(h('div',{class:'day'}, h('div',{class:'day-h'}, h('span',{text:d==='無日期'?d:dayLabel(d)}), h('span',{text:right})),
-      list.map(e=>{
-        const bits=e.item===e.cat?[]:[e.cat]; if (fam) bits.push(e.type==='in' ? `${nameOf(e.by,e.bn)}收` : `${nameOf(e.by,e.bn)}付`);
-        if (e.note) bits.push(e.note);
-        return h('button',{type:'button',class:'row','data-id':e.id,onclick:()=>openDetail(e)}, glyph(e.type,e.cat),
-          h('div',{class:'desc'}, h('div',{class:'it',text:e.item||'（未寫項目）'}), bits.length?h('div',{class:'sub',text:bits.join(' · ')}):null),
-          h('span',{class:'money '+e.type,text:(e.type==='in'?'+':'−')+money(e.amt)}));
-      })));
+      list.map(e=>entryRow(e, fam))));
   }
+}
+function entryRow(e, fam, withDate){
+  const bits=e.item===e.cat?[]:[e.cat]; if (fam) bits.push(e.type==='in' ? `${nameOf(e.by,e.bn)}收` : `${nameOf(e.by,e.bn)}付`);
+  if (e.note) bits.push(e.note);
+  if (withDate && e.date) bits.unshift(e.date.slice(5).replace('-','/'));
+  return h('button',{type:'button',class:'row','data-id':e.id,onclick:()=>openDetail(e)}, glyph(e.type,e.cat),
+    h('div',{class:'desc'}, h('div',{class:'it'}, e.item||'（未寫項目）', e.auto?h('span',{class:'autotag',text:'自動'}):null), bits.length?h('div',{class:'sub',text:bits.join(' · ')}):null),
+    h('span',{class:'money '+e.type,text:(e.type==='in'?'+':'−')+money(e.amt)}));
 }
 function openDetail(e){
   const fam=curFam(), p=$('detailPanel'); p.replaceChildren();
@@ -883,9 +1037,10 @@ function openDetail(e){
     clearTimeout(t); del.disabled=true; del.textContent='刪除緊…';
     const ledger=S.cur;
     try {
-      await callRetry({op:'del', auth:ledAuth(), id:e.id});
+      const how=await writeOp({kind:'del', led:ledger, eid:e.id});
       if (S.cur===ledger){ const arr=S.byMonth[e.m]; if (arr) S.byMonth[e.m]=arr.filter(x=>x.id!==e.id); renderAll(); }
-      closeSheets(); toast('已刪除');
+      S.allRows=null; if (!$('searchArea').hidden) doSearch();
+      closeSheets(); toast(how==='queued' ? '已刪除（未有網絡，會自動同步）' : '已刪除');
     } catch(err){ del.disabled=false; del.textContent='刪除'; toast(errText(err)); }
   });
   p.append(h('div',{class:'grab'}),
@@ -893,7 +1048,7 @@ function openDetail(e){
       h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:closeSheets}, icon('close'))),
     h('p',{class:'detail-amt '+(e.type==='in'?'pos':''),text:(e.type==='in'?'+':'−')+money(e.amt)}),
     h('dl',{class:'kv'}, rows.flatMap(([k,v])=>[h('dt',{text:k}), h('dd',{text:v})])),
-    mine ? h('div',{class:'two'}, h('button',{type:'button',class:'primary',text:'修改',id:'editBtn',onclick:()=>{ closeSheets(); openAdd(e); }}), del)
+    mine ? h('div',{class:'two'}, h('button',{type:'button',class:'primary',text:'修改',id:'editBtn',onclick:()=>{ closeSheets({keep:true}); openAdd(e); }}), del)
          : h('p',{class:'note',style:'text-align:center',text:'呢筆係其他成員記嘅，只有佢先可以修改或者刪除。'}));
   openSheet('detailSheet');
 }
@@ -929,11 +1084,15 @@ function showCopyBox(txt, where){
   (where||$('report')).append(h('div',{}, h('p',{class:'note',text:'自動複製唔到，請長按下面嘅文字，揀「全選」再複製：'}), ta));
   ta.focus(); ta.select();
 }
+function legacyCopy(txt, where){
+  const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.top='0'; ta.style.left='0'; ta.style.opacity='0'; ta.style.fontSize='16px';
+  document.body.append(ta); ta.focus(); ta.select(); try { ta.setSelectionRange(0, txt.length); } catch {}
+  let ok=false; try { ok=document.execCommand('copy'); } catch {} ta.remove();
+  if (ok) toast('已複製'); else showCopyBox(txt, where);
+}
 function copyText(txt, where){
-  const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.top='0'; ta.style.opacity='0';
-  document.body.append(ta); ta.select(); let ok=false; try { ok=document.execCommand('copy'); } catch {} ta.remove();
-  if (ok){ toast('已複製'); return; }
-  try { navigator.clipboard.writeText(txt).then(()=>toast('已複製'), ()=>showCopyBox(txt, where)); } catch { showCopyBox(txt, where); }
+  if (navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(txt).then(()=>toast('已複製'), ()=>legacyCopy(txt, where)); return; }
+  legacyCopy(txt, where);
 }
 function shareRow(txt, where){
   return h('div',{class:'actions'},
@@ -1278,11 +1437,20 @@ $('addForm').addEventListener('submit', async ev=>{
     const payload={...rec}, ed=S.editing;
     if (fam){ const by=$('fWho').value || fam.mid; const mm=S.members.find(x=>x.uid===by); payload.by=by; payload.bn=(mm&&mm.nick)||(ed&&ed.by===by?ed.bn:'')||''; payload.rec=(ed&&ed.rec)||fam.mid; }
     const id=ed?ed.id:rid(), at=ed?(ed.at||Date.now()):Date.now(), c=await encJSON(key, payload);
-    if (ed) await callRetry({op:'edit', auth, entry:{id, m, at, iv:c.iv, ct:c.ct}});
-    else await callRetry({op:'add', auth, entries:[{id, m, at, iv:c.iv, ct:c.ct}], dedupe:true});
+    const row={id, m, at, iv:c.iv, ct:c.ct};
+    const how=await writeOp(ed ? {kind:'edit', led:ledger, row} : {kind:'add', led:ledger, row});
+    let ruleMsg='';
+    if (!ed && $('fRepeat').checked){
+      const day=Number($('fDay').value)||1;
+      const rule={id:rid(), type:rec.type, amt:rec.amt, cat:rec.cat, item:rec.item, note:rec.note, day, start:m, done:m};
+      if (fam){ rule.by=payload.by; rule.bn=payload.bn; rule.rec=fam.mid; }
+      try { await saveLedgerMeta(meta=>{ meta.rules=Array.isArray(meta.rules)?meta.rules:[]; meta.rules.push(rule); }); ruleMsg=`，之後每月 ${day} 號會自動記`; setTimeout(()=>{ renderRecur(); runRecurring(); },0); }
+      catch(e2){ ruleMsg='（每月自動記要有網絡先設定到）'; }
+    }
     $('fAmt').value=''; $('fItem').value=''; $('fNote').value='';
-    S.editing=null; closeSheets();
-    toast(ed ? '已修改' : `已記低${rec.type==='in'?'收入':'支出'} ${money(rec.amt)}`);
+    S.editing=null; S.allRows=null; closeSheets();
+    toast((ed ? '已修改' : `已記低${rec.type==='in'?'收入':'支出'} ${money(rec.amt)}`) + ruleMsg + (how==='queued' ? '（未有網絡，已存喺部機）' : ''));
+    if (!$('searchArea').hidden) doSearch();
     if (S.cur!==ledger) return;
     if (ed && S.byMonth[ed.m]) S.byMonth[ed.m]=S.byMonth[ed.m].filter(x=>x.id!==ed.id);
     const y=Number(m.slice(0,4));
@@ -1312,9 +1480,11 @@ $('rNext').addEventListener('click',()=>go(1,S.view));
 $('refreshBtn').addEventListener('click', refreshAll);
 
 /* ---------- join / create ---------- */
+let joinMode='join';
+['jJoin','jCreate'].forEach(id=>$(id).addEventListener('click', ()=>{ joinMode=$(id).dataset.mode; }));
 $('joinForm').addEventListener('submit', async ev=>{
   ev.preventDefault();
-  const mode = (ev.submitter && ev.submitter.dataset.mode) || 'join';
+  const mode = (ev.submitter && ev.submitter.dataset.mode) || joinMode;
   const je=$('joinErr'); je.hidden=true;
   const fail=m=>{ je.textContent=m; je.hidden=false; };
   if (!S.me) return;
@@ -1323,8 +1493,9 @@ $('joinForm').addEventListener('submit', async ev=>{
   if (pass.length<6) return fail('家庭密碼最少要 6 個字');
   if (!nick) return fail('請輸入你喺呢個家庭嘅稱呼，等其他人知係邊個記嘅數');
   const b1=$('jJoin'), b2=$('jCreate'); b1.disabled=b2.disabled=true;
-  const label=ev.submitter; const old=label?label.textContent:''; if(label) label.textContent='處理緊…';
+  const label=ev.submitter || $(mode==='create'?'jCreate':'jJoin'); const old=label?label.textContent:''; if(label) label.textContent='處理緊…';
   try {
+    if (navigator.onLine===false) throw {code:'need_online'};
     const {fid,keyRaw,ftoken}=await familyKeys(name, pass);
     const key=await importKey(keyRaw);
     const meta=await encJSON(key,{name, createdAt:Date.now()});
@@ -1343,12 +1514,121 @@ $('joinForm').addEventListener('submit', async ev=>{
   finally { b1.disabled=b2.disabled=false; if(label) label.textContent=old; }
 });
 
+/* ---------- recurring ---------- */
+const rulesOf = () => { const m=ledgerMeta(); return m && Array.isArray(m.rules) ? m.rules.filter(r=>r && r.id) : []; };
+const dim = m => { const [y,mo]=m.split('-').map(Number); return new Date(y,mo,0).getDate(); };
+let recurBusy=false;
+async function runRecurring(){
+  if (recurBusy || !S.me || S.offline || navigator.onLine===false) return;
+  const fam=curFam(), led=S.cur;
+  if (fam && !S.famMeta) return;
+  const rules=rulesOf(); if (!rules.length) return;
+  recurBusy=true;
+  try {
+    const tm=thisMonth(), today=new Date().getDate(), key=ledKey(), auth=ledAuth(), floor=shiftMonth(tm,-23);
+    const rows=[], doneMap={};
+    for (const r of rules){
+      if (!(Number(r.amt)>0) || !/^\d{4}-\d{2}$/.test(r.start||'')) continue;
+      let m = r.done ? shiftMonth(r.done,1) : r.start; if (m<floor) m=floor;
+      let last=null;
+      while (m<=tm){
+        const day=Math.min(Number(r.day)||1, dim(m)); if (m===tm && today<day) break;
+        const payload={type:r.type==='in'?'in':'out', amt:Number(r.amt), cat:r.cat, item:r.item||r.cat, date:`${m}-${pad(day)}`, note:r.note||'', auto:true};
+        if (fam){ payload.by=r.by||fam.mid; payload.bn=r.bn||''; payload.rec=r.rec||fam.mid; }
+        const c=await encJSON(key, payload);
+        rows.push({id:`a${r.id}${m.replace('-','')}`.slice(0,64), m, at:Date.now(), iv:c.iv, ct:c.ct}); last=m; m=shiftMonth(m,1);
+      }
+      if (last) doneMap[r.id]=last;
+    }
+    if (!rows.length) return;
+    let added=0;
+    for (let i=0;i<rows.length;i+=200){ const res=await callRetry({op:'add', auth, entries:rows.slice(i,i+200), dedupe:true}); added+=res.added||0; }
+    await saveLedgerMeta(meta=>{ (meta.rules||[]).forEach(r=>{ if (doneMap[r.id] && (!r.done || r.done<doneMap[r.id])) r.done=doneMap[r.id]; }); });
+    if (S.cur===led){ if (added) toast(`已自動記低 ${added} 筆每月固定收支`); S.allRows=null; loadYear(true); renderRecur(); }
+  } catch(e){ /* 下次再試 */ }
+  finally { recurBusy=false; }
+}
+function renderRecur(){
+  const box=$('recurCard'); if (!box || !S.me) return;
+  const fam=curFam(), rules=rulesOf();
+  box.replaceChildren(h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'每月固定收支'}), h('span',{class:'aside',text:fam?fam.name:'私人帳'})));
+  if (fam && !S.famMeta){ box.append(h('p',{class:'note',text:'載入緊…'})); return; }
+  if (!rules.length){ box.append(h('p',{class:'note',text:'例如租金、管理費、保險、人工。記帳時剔「每個月自動記低」，之後每個月到期就會自動記，唔使再輸入。'})); return; }
+  box.append(h('ul',{class:'rlist'}, rules.map(r=>{
+    let t; const rm=h('button',{type:'button',class:'del',text:'刪除'});
+    rm.addEventListener('click', async ()=>{
+      if (rm.dataset.armed!=='1'){ rm.dataset.armed='1'; rm.textContent='再撳確認'; clearTimeout(t); t=setTimeout(()=>{ rm.dataset.armed='0'; rm.textContent='刪除'; },3000); return; }
+      rm.disabled=true;
+      try { await saveLedgerMeta(meta=>{ meta.rules=(meta.rules||[]).filter(x=>x.id!==r.id); }); toast('已刪除呢個固定收支'); renderRecur(); }
+      catch(e){ rm.disabled=false; toast(e && e.code==='network' ? ERR.need_online : errText(e)); }
+    });
+    const sub=[`每月 ${r.day} 號`, r.cat]; if (fam) sub.push(`${nameOf(r.by,r.bn)}${r.type==='in'?'收':'付'}`);
+    return h('li',{}, glyph(r.type==='in'?'in':'out', r.cat||'其他'), h('div',{class:'desc'}, h('div',{class:'it',text:r.item||r.cat}), h('div',{class:'sub',text:sub.join(' · ')})),
+      h('span',{class:'money '+(r.type==='in'?'in':''),text:(r.type==='in'?'+':'−')+sm(Number(r.amt))}), rm);
+  })), h('p',{class:'note',style:'font-size:13px',text:'刪除規則唔會刪走已經自動記低嘅記錄。'}));
+}
+function renderCatCard(){
+  const box=$('catCard'); if (!box || !S.me) return;
+  const fam=curFam();
+  box.replaceChildren(h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'自訂類別'}), h('span',{class:'aside',text:fam?fam.name:'私人帳'})));
+  if (fam && !S.famMeta){ box.append(h('p',{class:'note',text:'載入緊…'})); return; }
+  ['out','in'].forEach(type=>{
+    const list=customCats(type);
+    box.append(h('div',{class:'grp'}, h('span',{class:'lbl',text:type==='in'?'收入類別':'支出類別'}),
+      list.length ? h('div',{class:'chiplist'}, list.map(c=>h('span',{class:'cchip'}, glyph(type,c), c,
+        h('button',{type:'button','aria-label':`移除 ${c}`,text:'×',onclick:async ev=>{ const b=ev.currentTarget; b.disabled=true;
+          try { await saveLedgerMeta(m=>{ if (m.cats && Array.isArray(m.cats[type])) m.cats[type]=m.cats[type].filter(x=>x!==c); }); if (S.cat[type]===c) S.cat[type]=CATS[type][0]; buildCats(); renderCatCard(); toast(`已移除「${c}」，舊記錄唔受影響`); }
+          catch(e){ b.disabled=false; toast(e && e.code==='network' ? ERR.need_online : errText(e)); } }}))))
+        : h('p',{class:'note',style:'font-size:13px',text:'未有自訂類別'})));
+  });
+  const inp=h('input',{id:'catIn',maxlength:'6',autocomplete:'off',placeholder:'例如：寵物、保險'});
+  const sel=h('select',{id:'catType','aria-label':'類型',style:'width:auto'}, h('option',{value:'out',text:'支出'}), h('option',{value:'in',text:'收入'}));
+  const add=h('button',{type:'button',class:'ghost',text:'加入',onclick:async()=>{
+    const v=inp.value.trim().slice(0,6); if (!v){ toast('請輸入類別名稱'); return; }
+    add.disabled=true;
+    try { await addCustomCat(sel.value, v); inp.value=''; buildCats(); renderCatCard(); toast(`已加入類別「${v}」`); }
+    catch(e){ toast(e && e.code==='network' ? ERR.need_online : errText(e)); } finally { add.disabled=false; }
+  }});
+  box.append(h('div',{class:'inline'}, h('div',{class:'field'}, h('label',{for:'catIn',text:'加新類別'}), inp), sel, add),
+    h('p',{class:'note',style:'font-size:13px',text: fam ? '家庭帳嘅自訂類別全家共用。' : '私人帳嘅自訂類別只有你見到。'}));
+}
+
+/* ---------- search ---------- */
+function closeSearch(){ $('searchArea').hidden=true; $('ledgerMain').hidden=false; $('searchIn').value=''; $('searchRes').replaceChildren(); }
+$('searchBtn').addEventListener('click', ()=>{ if (!$('searchArea').hidden){ closeSearch(); return; } $('ledgerMain').hidden=true; $('searchArea').hidden=false; doSearch(); setTimeout(()=>$('searchIn').focus(),50); });
+$('searchClose').addEventListener('click', closeSearch);
+let searchT; $('searchIn').addEventListener('input', ()=>{ clearTimeout(searchT); searchT=setTimeout(doSearch, 250); });
+async function ensureAll(){
+  if (S.allRows && S.allRows.led===S.cur) return S.allRows;
+  const led=S.cur;
+  try { const list=await allEntries(); const res={led, list, note:''}; if (S.cur===led) S.allRows=res; return res; }
+  catch(e){ if (e && e.code==='network') return {led, list:Object.values(S.byMonth).flat(), note:'未有網絡，只搜尋今年已載入嘅記錄。'}; throw e; }
+}
+async function doSearch(){
+  const box=$('searchRes'), q=$('searchIn').value.trim().toLowerCase();
+  if (!q){ box.replaceChildren(h('p',{class:'note',text:'輸入關鍵字，例如「冷氣」、「八達通」或者金額「1200」。會搜尋呢本帳簿所有年份。'})); return; }
+  const tok=++S.stok; box.replaceChildren(h('p',{class:'note',text:'搜尋緊…'}));
+  let all; try { all=await ensureAll(); } catch(e){ if (tok===S.stok) box.replaceChildren(h('p',{class:'err',text:errText(e)})); return; }
+  if (tok!==S.stok) return;
+  const fam=curFam();
+  const hay=e=>[e.item,e.note,e.cat,fam?nameOf(e.by,e.bn):'',String(e.amt),e.amt.toFixed(2),e.date].join(' ').toLowerCase();
+  const res=all.list.filter(e=>hay(e).includes(q)).sort((a,b)=>(b.date||'').localeCompare(a.date||'') || b.at-a.at);
+  const t=totals(res);
+  box.replaceChildren();
+  if (all.note) box.append(h('p',{class:'note',text:all.note}));
+  if (!res.length){ box.append(h('div',{class:'empty'}, h('span',{text:`搵唔到「${$('searchIn').value.trim()}」`}))); return; }
+  box.append(h('p',{class:'note',text:`搵到 ${res.length} 筆` + (t.exp?` · 支出 ${sm(t.exp)}`:'') + (t.inc?` · 收入 ${sm(t.inc)}`:'')}));
+  const groups=new Map(); res.slice(0,300).forEach(e=>{ const k=(e.date||'').slice(0,7)||'無日期'; if (!groups.has(k)) groups.set(k,[]); groups.get(k).push(e); });
+  for (const [m,list] of groups) box.append(h('div',{class:'day'}, h('div',{class:'day-h'}, h('span',{text:m==='無日期'?m:monthLabel(m)}), h('span',{text:''})), list.map(e=>entryRow(e, fam, true))));
+  if (res.length>300) box.append(h('p',{class:'note',text:'只顯示最近 300 筆，請用更準確嘅關鍵字。'}));
+}
+
 /* ---------- boot ---------- */
 function paintIcons(){
   const nb=(id,ic,label)=>{ const b=$(id); b.replaceChildren(icon(ic), h('span',{text:label})); };
   nb('nav-ledger','list','帳目'); nb('nav-report','chart','報表'); nb('nav-family','people','家庭'); nb('nav-settings','gear','設定');
   $('fab').replaceChildren(icon('plus'));
-  [['mPrev','left'],['mNext','right'],['rPrev','left'],['rNext','right'],['refreshBtn','refresh'],['closeAdd','close']].forEach(([id,ic])=>$(id).replaceChildren(icon(ic)));
+  [['mPrev','left'],['mNext','right'],['rPrev','left'],['rNext','right'],['refreshBtn','refresh'],['searchBtn','search'],['closeAdd','close']].forEach(([id,ic])=>$(id).replaceChildren(icon(ic)));
 }
 function applyBig(on){ document.body.classList.toggle('big', !!on); $('bigMode').checked=!!on; }
 $('bigMode').addEventListener('change', e=>{ lsSet('big', e.target.checked?'1':''); applyBig(e.target.checked); });
@@ -1357,6 +1637,7 @@ async function boot(){
   paintIcons(); buildCats(); syncTypeUI(); setAuthMode('login');
   $('fDate').value = todayStr();
   if (!window.crypto || !crypto.subtle){ const f=$('fatal'); f.textContent='呢個瀏覽器太舊，用唔到加密功能。請用最新版 Chrome 或者 Safari 打開。'; f.hidden=false; return; }
+  if ('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')) navigator.serviceWorker.register('sw.js').catch(()=>{});
   call({op:'hello'}).catch(e=>{ if (e && e.code==='old_backend'){ const f=$('fatal'); f.textContent=ERR.old_backend; f.hidden=false; } });
   const s=loadSession();
   if (!s){ showAuth(); return; }
