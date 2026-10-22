@@ -109,6 +109,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,[t
 .lchip svg{width:15px;height:15px;flex:none}
 .lchip[aria-current="true"]{background:var(--acc);border-color:var(--acc);color:var(--on-acc);font-weight:700}
 .lchip.more{border-style:dashed;color:var(--muted)}
+.lchip.picker{max-width:100%;padding-right:10px}
+.lchip.picker .lname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:62vw}
+.famrow .glyph.lg-me{background:var(--jade-soft);color:var(--jade-2)}
+.famrow .desc{flex:1;min-width:0}
+.famrow .desc .it{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.famrow .desc .sub{font-size:13px;color:var(--muted)}
 
 /* cards & text */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
@@ -437,6 +443,8 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
       <div class="card-h" style="margin:0"><h3>顯示</h3></div>
       <label class="setrow" for="bigMode"><span>大字模式<br><span class="note">字同掣大啲，適合長輩。</span></span><input type="checkbox" id="bigMode"></label>
       <label class="setrow" for="showPayer"><span>家庭帳顯示邊個付／收<br><span class="note">記錄下面嘅「你付」、「媽咪收」</span></span><input type="checkbox" id="showPayer"></label>
+      <label class="setrow" for="showAvg"><span>首頁顯示平均每日支出</span><input type="checkbox" id="showAvg"></label>
+      <label class="setrow" for="showYtd"><span>首頁顯示今年累積</span><input type="checkbox" id="showYtd"></label>
       <label class="setrow" for="settleTip"><span>首頁顯示夾數提示<br><span class="note">例如「婆婆 俾 你 $200」。詳細夾數一樣喺「報表」睇到。</span></span><input type="checkbox" id="settleTip"></label>
       <div class="grp"><span class="lbl">主題顏色</span><div class="swatches" id="swatches" role="radiogroup" aria-label="主題顏色"></div></div>
       <div class="grp"><span class="lbl">深色／淺色</span>
@@ -584,6 +592,7 @@ const ICONS = {
   refresh:'M20 11a8 8 0 10-2.3 5.7M20 4v7h-7',
   search:'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
   asterisk:'M12 4v16M5.1 8l13.8 8M5.1 16l13.8-8',
+  down:'M6 9l6 6 6-6',
   share:'M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v12M7 8l5-5 5 5',
   copy:'M9 9h11v11H9zM5 15H4V4h11v1'
 };
@@ -890,10 +899,21 @@ function plainName(id, bn){
 /* ---------- top & form ---------- */
 function renderChips(){
   const nav=$('chips'); nav.replaceChildren();
-  const mk=(key,label,ic)=>h('button',{type:'button',class:'lchip','aria-current':String(S.cur===key),onclick:()=>{ if(S.cur!==key) setLedger(key); }}, icon(ic), label);
-  nav.append(mk('me','私人帳','lock'));
-  S.fams.forEach(f=>nav.append(mk(f.fid,f.name,'home')));
-  nav.append(h('button',{type:'button',class:'lchip more',onclick:()=>{ setTab('family'); setTimeout(()=>$('jName').focus(),50); }}, icon('plus'), '家庭'));
+  const f=curFam();
+  nav.append(h('button',{type:'button',class:'lchip picker',id:'ledgerBtn','aria-current':'true','aria-haspopup':'dialog','aria-label':'轉帳簿',onclick:openLedgerPicker},
+    icon(f?'home':'lock'), h('span',{class:'lname',text:f?f.name:'私人帳'}), icon('down')));
+}
+function openLedgerPicker(){
+  const p=$('detailPanel'); p.replaceChildren();
+  const row=(key,label,sub)=>h('button',{type:'button',class:'famrow','data-led':key,onclick:()=>{ closeSheets(); if (S.cur!==key) setLedger(key); }},
+    h('span',{class:'glyph'+(key==='me'?' lg-me':''),text:key==='me'?'私':label.slice(0,1)}),
+    h('div',{class:'desc'}, h('div',{class:'it',text:label}), h('div',{class:'sub',text:sub})),
+    S.cur===key ? h('span',{class:'mini',text:'睇緊'}) : null);
+  p.append(h('div',{class:'grab'}),
+    h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:'揀帳簿'}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:()=>closeSheets()}, icon('close'))),
+    h('div',{class:'famlist',id:'ledgerList'}, row('me','私人帳','只有你自己睇到'), S.fams.map(f=>row(f.fid, f.name, '家庭帳'))),
+    h('button',{type:'button',class:'ghost',style:'justify-content:center',onclick:()=>{ closeSheets(); setTab('family'); setTimeout(()=>$('jName').focus(),80); }}, icon('plus'), '加入或建立家庭'));
+  openSheet('detailSheet');
 }
 function renderWho(){
   const fam=curFam(), wf=$('whoField'), sel=$('fWho');
@@ -1018,7 +1038,7 @@ function renderHero(){
     h('div',{class:'row2'},
       h('div',{class:'pill'}, h('span',{}, h('i',{class:'dot d-inc'}),'收入'), h('b',{text:money(t.inc)})),
       h('div',{class:'pill'}, h('span',{}, h('i',{class:'dot d-exp'}),'支出'), h('b',{text:money(t.exp)}), cmp?h('small',{text:cmp}):null)),
-    h('div',{class:'foot'}, h('span',{text: avg || `共 ${E.length} 筆`}), h('span',{text:`今年累積 ${signed(ytd)}`})),
+    (lsGet('showAvg')!=='0' || lsGet('showYtd')!=='0') ? h('div',{class:'foot'}, h('span',{text: lsGet('showAvg')!=='0' ? (avg || `共 ${E.length} 筆`) : ''}), lsGet('showYtd')!=='0' ? h('span',{text:`今年累積 ${signed(ytd)}`}) : null) : null,
     fund, bud));
 }
 async function saveFamMeta(fam, mutate){
@@ -1760,6 +1780,7 @@ function applyLook(){
   const meta=document.querySelector('meta[name="theme-color"]'); if (meta){ const dark = mode==='dark' || (mode==='auto' && matchMedia('(prefers-color-scheme: dark)').matches); meta.setAttribute('content', dark ? '#0E1618' : (THEMES.find(t=>t[0]===tc)||THEMES[0])[2]); meta.removeAttribute('media'); }
 }
 $('showPayer').addEventListener('change', e=>{ lsSet('showPayer', e.target.checked?'1':'0'); renderAll(); });
+['showAvg','showYtd'].forEach(id=>$(id).addEventListener('change', e=>{ lsSet(id, e.target.checked?'1':'0'); renderAll(); }));
 $('settleTip').addEventListener('change', e=>{ lsSet('settleTip', e.target.checked?'1':'0'); renderAll(); });
 $('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if (!b) return; lsSet('mode', b.dataset.mode); applyLook(); });
 function applyBig(on){ document.body.classList.toggle('big', !!on); $('bigMode').checked=!!on; }
@@ -1767,6 +1788,7 @@ $('bigMode').addEventListener('change', e=>{ lsSet('big', e.target.checked?'1':'
 async function boot(){
   applyBig(lsGet('big')==='1'); applyLook();
   $('showPayer').checked = lsGet('showPayer')!=='0'; $('settleTip').checked = lsGet('settleTip')==='1';
+  $('showAvg').checked = lsGet('showAvg')!=='0'; $('showYtd').checked = lsGet('showYtd')!=='0';
   paintIcons(); buildCats(); syncTypeUI(); setAuthMode('login');
   $('fDate').value = todayStr();
   if (!window.crypto || !crypto.subtle){ const f=$('fatal'); f.textContent='呢個瀏覽器太舊，用唔到加密功能。請用最新版 Chrome 或者 Safari 打開。'; f.hidden=false; return; }
