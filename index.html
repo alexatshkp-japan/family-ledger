@@ -404,6 +404,7 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
       <div class="card-h" style="margin:0"><h3>顯示</h3></div>
       <label class="setrow" for="bigMode"><span>大字模式<br><span class="note">字同掣大啲，適合長輩。只影響呢部機。</span></span><input type="checkbox" id="bigMode"></label>
     </section>
+    <section class="card stack" id="curCard"></section>
     <section class="card stack" id="recurCard"></section>
     <section class="card stack" id="catCard"></section>
     <section class="card stack" id="backup"></section>
@@ -442,7 +443,7 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
       <button type="button" role="radio" data-t="out" aria-checked="true">支出</button>
       <button type="button" role="radio" data-t="in" aria-checked="false">收入</button>
     </div>
-    <div class="amt out" id="amtBox"><span>HK$</span><input id="fAmt" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="金額"></div>
+    <div class="amt out" id="amtBox"><span id="curSym">HK$</span><input id="fAmt" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="金額"></div>
     <div class="catgrid" id="cats" role="radiogroup" aria-label="類別"></div>
     <div class="inline" id="newCatRow" hidden><div class="field"><label for="newCat">新類別名稱（最多 6 個字）</label><input id="newCat" maxlength="6" autocomplete="off" placeholder="例如：寵物、保險"></div><button type="button" class="ghost" id="newCatAdd">加入</button></div>
     <div class="field"><label for="fItem" id="itemLbl">消費項目</label><input id="fItem" maxlength="60" autocomplete="off" placeholder="例如：街市買餸、八達通增值"></div>
@@ -482,10 +483,16 @@ const MIN_YEAR = 2010, APP_ID = 'ukei-ledger';
 const API_URL = window.UKEI_API || 'https://script.google.com/macros/s/AKfycbwNv0lSDyM8ZMFuj2eI1jrJwOpBLCGom4adKT4aDKqdYfb1isFbWVomIKBoAu5pUdg/exec';
 const SITE_URL = location.origin + location.pathname.replace(/[^/]*$/, '');
 const enc = new TextEncoder(), dec = new TextDecoder();
-const fmt = new Intl.NumberFormat('zh-HK',{style:'currency',currency:'HKD',minimumFractionDigits:2,maximumFractionDigits:2});
-const money = n => fmt.format(Math.round((n||0)*100)/100);
+const FMT = {
+  HKD:new Intl.NumberFormat('zh-HK',{style:'currency',currency:'HKD',minimumFractionDigits:2,maximumFractionDigits:2}),
+  USD:new Intl.NumberFormat('zh-HK',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2})
+};
+// 每本帳簿可以揀港幣或者美元（只影響顯示，唔會換算）
+const curCode = () => { try { const m=ledgerMeta(); return m && m.currency==='USD' ? 'USD' : 'HKD'; } catch { return 'HKD'; } };
+const curSym = () => curCode()==='USD' ? 'US$' : 'HK$';
+const money = n => FMT[curCode()].format(Math.round((n||0)*100)/100);
 const signed = n => (n>0.004?'+':n<-0.004?'−':'') + money(Math.abs(n));
-const sm = n => { const v=Math.round((n||0)*100)/100; return '$'+v.toLocaleString('en-US',{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2}); };
+const sm = n => { const v=Math.round((n||0)*100)/100; return (curCode()==='USD'?'US$':'$')+v.toLocaleString('en-US',{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2}); };
 const ssigned = n => (n>0.004?'+':n<-0.004?'−':'') + sm(Math.abs(n));
 const pad = n => String(n).padStart(2,'0');
 const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
@@ -735,7 +742,7 @@ function setTab(t){
   ['ledger','report','family','settings'].forEach(x=>{ $('tab-'+x).hidden = x!==t; const b=$('nav-'+x); if (t===x) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   if (t==='report') renderReport();
   if (t==='family') renderFamPanel(true);
-  if (t==='settings'){ renderAccount(); renderBackup(); renderRecur(); renderCatCard(); }
+  if (t==='settings'){ renderAccount(); renderBackup(); renderRecur(); renderCatCard(); renderCurCard(); }
   window.scrollTo({top:0});
 }
 document.querySelectorAll('.nb').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -750,7 +757,7 @@ function setLedger(key){
   $('detailSheet').className = $('addSheet').className;
   renderChips(); S.allRows=null; closeSearch();
   loadYear(); if (curFam()) loadMembers();
-  renderWho(); syncTypeUI(); renderAll(); renderFamPanel(true); renderBackup(); renderRecur(); renderCatCard();
+  renderWho(); syncTypeUI(); renderAll(); renderFamPanel(true); renderBackup(); renderRecur(); renderCatCard(); renderCurCard();
 }
 const validId = s => typeof s==='string' && /^[A-Za-z0-9_-]{1,100}$/.test(s);
 function clean(x){
@@ -817,7 +824,7 @@ async function loadMembers(){
     S.famMeta = meta || {name:fam.name};
     const me=fam.mid;
     arr.sort((a,b)=>(a.uid===me?-1:b.uid===me?1:0) || (a.proxy-b.proxy) || a.nick.localeCompare(b.nick,'zh-HK'));
-    S.members=arr; renderWho(); renderAll(); renderFamPanel(false); renderRecur(); renderCatCard(); buildCats();
+    S.members=arr; renderWho(); renderAll(); renderFamPanel(false); renderRecur(); renderCatCard(); renderCurCard(); buildCats();
     runRecurring();
   } catch(e){ if (t===S.mtok) toast(errText(e)); }
 }
@@ -863,7 +870,7 @@ function syncTypeUI(){
   $('itemLbl').textContent = t==='in' ? '收入項目' : '消費項目';
   $('fItem').placeholder = t==='in' ? '例如：十月人工、美股股息' : '例如：街市買餸、八達通增值';
   $('whoLbl').textContent = t==='in' ? '邊個收錢' : '邊個付錢';
-  $('amtBox').className='amt '+t;
+  $('amtBox').className='amt '+t; $('curSym').textContent=curSym();
   buildCats();
 }
 const ledgerMeta = () => curFam() ? S.famMeta : S.profile;
@@ -1012,7 +1019,7 @@ function openOpening(){
   p.append(h('div',{class:'grab'}),
     h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:'開始資金'}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:()=>closeSheets()}, icon('close'))),
     h('p',{class:'note',text: (fam ? `「${fam.name}」` : '私人帳') + '開始記帳嗰日本身有幾多錢，例如銀行戶口結餘。之後首頁會顯示「而家資金」＝開始資金＋之後收入－之後支出。'}),
-    h('div',{class:'amt'}, h('span',{text:'HK$'}), inp),
+    h('div',{class:'amt'}, h('span',{text:curSym()}), inp),
     h('div',{class:'field'}, h('label',{for:'oDate',text:'由邊日開始計（呢日同之後嘅記錄會計入）'}), dt), err,
     h('div',{class:'two'},
       h('button',{type:'button',class:'primary',text:'儲存',onclick:()=>{ const v=Number(String(inp.value).replace(/[,\s$]/g,'')); if (inp.value.trim()==='' || !isFinite(v) || Math.abs(v)>=1e10){ err.textContent='請輸入金額（可以係 0）'; err.hidden=false; return; } if (!/^\d{4}-\d{2}-\d{2}$/.test(dt.value)){ err.textContent='請揀日期'; err.hidden=false; return; } save({amt:Math.round(v*100)/100, date:dt.value}); }}),
@@ -1033,7 +1040,7 @@ function openBudget(){
   p.append(h('div',{class:'grab'}),
     h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:'每月預算'}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:closeSheets}, icon('close'))),
     h('p',{class:'note',text: fam ? `「${fam.name}」每個月支出嘅上限，全家共用，大家都會見到。` : '私人帳每個月支出嘅上限，只有你見到。'}),
-    h('div',{class:'amt out'}, h('span',{text:'HK$'}), inp), err,
+    h('div',{class:'amt out'}, h('span',{text:curSym()}), inp), err,
     h('div',{class:'two'},
       h('button',{type:'button',class:'primary',text:'儲存',onclick:()=>{ const v=Number(inp.value.replace(/[,\s$]/g,'')); if (!(v>0) || v>=1e9){ err.textContent='請輸入大過 0 嘅金額'; err.hidden=false; return; } saveB(Math.round(v*100)/100); }}),
       h('button',{type:'button',class:'ghost',style:'justify-content:center',text:'唔設預算',onclick:()=>saveB(0)})));
@@ -1384,7 +1391,7 @@ async function buildBackup(){
 const csvCell = v => { const s=String(v==null?'':v); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
 function toCSV(entries){
   const fam=curFam();
-  const head=['日期','類型','類別','項目','金額','備註']; if (fam) head.push('付款／收款人');
+  const head=['日期','類型','類別','項目',`金額（${curCode()}）`,'備註']; if (fam) head.push('付款／收款人');
   const lines=[head.join(',')];
   entries.forEach(e=>{ const r=[e.date, e.type==='in'?'收入':'支出', e.cat, e.item, e.amt.toFixed(2), e.note]; if (fam) r.push(plainName(e.by,e.bn)); lines.push(r.map(csvCell).join(',')); });
   return lines.join('\r\n');
@@ -1617,6 +1624,20 @@ function renderRecur(){
     return h('li',{}, glyph(r.type==='in'?'in':'out', r.cat||'其他'), h('div',{class:'desc'}, h('div',{class:'it',text:r.item||r.cat}), h('div',{class:'sub',text:sub.join(' · ')})),
       h('span',{class:'money '+(r.type==='in'?'in':''),text:(r.type==='in'?'+':'−')+sm(Number(r.amt))}), rm);
   })), h('p',{class:'note',style:'font-size:13px',text:'刪除規則唔會刪走已經自動記低嘅記錄。'}));
+}
+function renderCurCard(){
+  const box=$('curCard'); if (!box || !S.me) return;
+  const fam=curFam();
+  box.replaceChildren(h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'貨幣'}), h('span',{class:'aside',text:fam?fam.name:'私人帳'})));
+  if (fam && !S.famMeta){ box.append(h('p',{class:'note',text:'載入緊…'})); return; }
+  const seg=h('div',{class:'seg full',role:'radiogroup','aria-label':'帳簿貨幣',id:'curSeg'});
+  [['HKD','港幣 HK$'],['USD','美元 US$']].forEach(([c,label])=>seg.append(h('button',{type:'button',role:'radio','aria-checked':String(curCode()===c),'data-cur':c,text:label,onclick:async ev=>{
+    if (curCode()===c) return; const b=ev.currentTarget; b.disabled=true;
+    try { await saveLedgerMeta(m=>{ if (c==='USD') m.currency='USD'; else delete m.currency; }); renderAll(); renderCurCard(); renderRecur(); syncTypeUI(); toast(`呢本帳簿而家用${c==='USD'?'美元':'港幣'}顯示`); }
+    catch(e){ toast(e && e.code==='network' ? ERR.need_online : errText(e)); } finally { b.disabled=false; }
+  }})));
+  box.append(seg, h('p',{class:'note',style:'font-size:13px',text:'成本帳簿所有金額、總數、預算同開始資金都會用呢個貨幣。轉貨幣唔會換算已經記低嘅數字，所以最好喺開始記帳前揀好。'+(fam?'家庭帳嘅貨幣全家共用。':'')}),
+    h('p',{class:'note',style:'font-size:13px',text:'想港幣同美元分開記？可以去「家庭」開一本只有你自己嘅帳簿，例如叫「美股戶口」，再揀美元。'}));
 }
 function renderCatCard(){
   const box=$('catCard'); if (!box || !S.me) return;
