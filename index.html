@@ -33,7 +33,7 @@
   --r:16px; color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-mode="light"]){
     --bg:#0D1517; --surface:#162125; --sunk:#1F2C30; --ink:#E4ECEA; --muted:#94A7AA; --line:#26363A;
     --jade:#3FB89F; --jade-2:#2F9A84; --jade-soft:#163A34; --amber:#E0A44B; --amber-2:#C88A2F; --amber-soft:#3A2D17;
     --inc:#3987e5; --inc-soft:#172B44; --inc-text:#86B6F2; --exp:#d95926; --exp-soft:#3A2117; --exp-text:#F2A07D;
@@ -42,6 +42,32 @@
     --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark;
   }
 }
+html[data-mode="dark"]{
+    --bg:#0D1517; --surface:#162125; --sunk:#1F2C30; --ink:#E4ECEA; --muted:#94A7AA; --line:#26363A;
+    --jade:#3FB89F; --jade-2:#2F9A84; --jade-soft:#163A34; --amber:#E0A44B; --amber-2:#C88A2F; --amber-soft:#3A2D17;
+    --inc:#3987e5; --inc-soft:#172B44; --inc-text:#86B6F2; --exp:#d95926; --exp-soft:#3A2117; --exp-text:#F2A07D;
+    --on-acc:#0D1517; --hero-chip:rgba(0,0,0,.14); --hero-track:rgba(0,0,0,.18); --hero-muted:rgba(13,21,23,.72);
+    --danger:#F07A80; --danger-soft:#3D1D20; --good:#5FCB8A; --scrim:rgba(0,0,0,.55);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark;
+}
+/* 主題顏色（設定 → 外觀） */
+html[data-tc="blue"]{--jade:#1F5FA8;--jade-2:#174C88;--jade-soft:#DCE7F6;--amber:#B0632A;--amber-2:#8F4E1F;--amber-soft:#F6E4D6}
+@media (prefers-color-scheme: dark){html[data-tc="blue"]:not([data-mode="light"]){--jade:#6AA5F0;--jade-2:#4E8AD6;--jade-soft:#172A45;--amber:#E59A5C;--amber-2:#C9803F;--amber-soft:#3A2618}}
+html[data-tc="blue"][data-mode="dark"]{--jade:#6AA5F0;--jade-2:#4E8AD6;--jade-soft:#172A45;--amber:#E59A5C;--amber-2:#C9803F;--amber-soft:#3A2618}
+html[data-tc="purple"]{--jade:#6B4BA8;--jade-2:#553A8A;--jade-soft:#E7DFF5;--amber:#B0567A;--amber-2:#8F4262;--amber-soft:#F6DFE8}
+@media (prefers-color-scheme: dark){html[data-tc="purple"]:not([data-mode="light"]){--jade:#A88BEA;--jade-2:#8F70D6;--jade-soft:#2A2140;--amber:#E58BB0;--amber-2:#C96F94;--amber-soft:#3B1F2A}}
+html[data-tc="purple"][data-mode="dark"]{--jade:#A88BEA;--jade-2:#8F70D6;--jade-soft:#2A2140;--amber:#E58BB0;--amber-2:#C96F94;--amber-soft:#3B1F2A}
+html[data-tc="rose"]{--jade:#B03A5B;--jade-2:#8F2D49;--jade-soft:#F7DDE3;--amber:#3E7D6A;--amber-2:#2F6152;--amber-soft:#D9EDE6}
+@media (prefers-color-scheme: dark){html[data-tc="rose"]:not([data-mode="light"]){--jade:#EE7F9C;--jade-2:#D66483;--jade-soft:#3D1C26;--amber:#6CC4A8;--amber-2:#4FA88C;--amber-soft:#173A31}}
+html[data-tc="rose"][data-mode="dark"]{--jade:#EE7F9C;--jade-2:#D66483;--jade-soft:#3D1C26;--amber:#6CC4A8;--amber-2:#4FA88C;--amber-soft:#173A31}
+html[data-tc="ink"]{--jade:#2F3B44;--jade-2:#1F2A31;--jade-soft:#E1E6E9;--amber:#8A6D3B;--amber-2:#6F572E;--amber-soft:#EFE6D6}
+@media (prefers-color-scheme: dark){html[data-tc="ink"]:not([data-mode="light"]){--jade:#B9C6CF;--jade-2:#9AAAB4;--jade-soft:#25313A;--amber:#D5B077;--amber-2:#B9955E;--amber-soft:#352B1C}}
+html[data-tc="ink"][data-mode="dark"]{--jade:#B9C6CF;--jade-2:#9AAAB4;--jade-soft:#25313A;--amber:#D5B077;--amber-2:#B9955E;--amber-soft:#352B1C}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--muted);cursor:pointer;padding:2px}
+.sw i{display:block;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.sw[aria-checked="true"]{color:var(--ink);font-weight:700}
+.sw[aria-checked="true"] i{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
@@ -402,7 +428,15 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
     <section class="card stack" id="accountCard"></section>
     <section class="card stack">
       <div class="card-h" style="margin:0"><h3>顯示</h3></div>
-      <label class="setrow" for="bigMode"><span>大字模式<br><span class="note">字同掣大啲，適合長輩。只影響呢部機。</span></span><input type="checkbox" id="bigMode"></label>
+      <label class="setrow" for="bigMode"><span>大字模式<br><span class="note">字同掣大啲，適合長輩。</span></span><input type="checkbox" id="bigMode"></label>
+      <div class="grp"><span class="lbl">主題顏色</span><div class="swatches" id="swatches" role="radiogroup" aria-label="主題顏色"></div></div>
+      <div class="grp"><span class="lbl">深色／淺色</span>
+        <div class="seg full" role="radiogroup" aria-label="深色淺色" id="modeSeg">
+          <button type="button" role="radio" data-mode="auto" aria-checked="true">跟手機</button>
+          <button type="button" role="radio" data-mode="light" aria-checked="false">淺色</button>
+          <button type="button" role="radio" data-mode="dark" aria-checked="false">深色</button>
+        </div></div>
+      <p class="note" style="font-size:13px">顯示設定只影響呢部機，唔會改到其他人。</p>
     </section>
     <section class="card stack" id="curCard"></section>
     <section class="card stack" id="recurCard"></section>
@@ -1702,10 +1736,21 @@ function paintIcons(){
   $('fab').replaceChildren(icon('plus'));
   [['mPrev','left'],['mNext','right'],['rPrev','left'],['rNext','right'],['refreshBtn','refresh'],['searchBtn','search'],['closeAdd','close']].forEach(([id,ic])=>$(id).replaceChildren(icon(ic)));
 }
+const THEMES=[['jade','翠綠','#0D7463','#A8670F'],['blue','海藍','#1F5FA8','#B0632A'],['purple','紫藤','#6B4BA8','#B0567A'],['rose','玫瑰','#B03A5B','#3E7D6A'],['ink','墨灰','#2F3B44','#8A6D3B']];
+function applyLook(){
+  const tc=lsGet('tc')||'jade', mode=lsGet('mode')||'auto', root=document.documentElement;
+  if (tc==='jade') root.removeAttribute('data-tc'); else root.setAttribute('data-tc', tc);
+  if (mode==='auto') root.removeAttribute('data-mode'); else root.setAttribute('data-mode', mode);
+  const box=$('swatches'); box.replaceChildren(...THEMES.map(([k,label,a,b])=>h('button',{type:'button',class:'sw',role:'radio','aria-checked':String(k===tc),'data-tc':k,onclick:()=>{ lsSet('tc',k); applyLook(); }},
+    h('i',{style:`background:linear-gradient(135deg,${a} 0 50%,${b} 50% 100%)`}), label)));
+  $('modeSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.mode===mode)));
+  const meta=document.querySelector('meta[name="theme-color"]'); if (meta){ const dark = mode==='dark' || (mode==='auto' && matchMedia('(prefers-color-scheme: dark)').matches); meta.setAttribute('content', dark ? '#0E1618' : (THEMES.find(t=>t[0]===tc)||THEMES[0])[2]); meta.removeAttribute('media'); }
+}
+$('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if (!b) return; lsSet('mode', b.dataset.mode); applyLook(); });
 function applyBig(on){ document.body.classList.toggle('big', !!on); $('bigMode').checked=!!on; }
 $('bigMode').addEventListener('change', e=>{ lsSet('big', e.target.checked?'1':''); applyBig(e.target.checked); });
 async function boot(){
-  applyBig(lsGet('big')==='1');
+  applyBig(lsGet('big')==='1'); applyLook();
   paintIcons(); buildCats(); syncTypeUI(); setAuthMode('login');
   $('fDate').value = todayStr();
   if (!window.crypto || !crypto.subtle){ const f=$('fatal'); f.textContent='呢個瀏覽器太舊，用唔到加密功能。請用最新版 Chrome 或者 Safari 打開。'; f.hidden=false; return; }
