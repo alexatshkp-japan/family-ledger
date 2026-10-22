@@ -146,6 +146,10 @@ input::placeholder{color:var(--muted);opacity:.7}
 .hero .btrack{height:8px;border-radius:4px;background:var(--hero-track);margin-top:7px;overflow:hidden}
 .hero .bfill{height:100%;border-radius:4px;background:var(--on-acc)}
 .hero .bfill.warn{background:#FFD27A} .hero .bfill.over{background:#FF9A8F}
+.hero .fund{position:relative;margin-top:12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;background:var(--hero-chip);border-radius:12px;padding:10px 12px}
+.hero .fund span{font-size:12.5px;color:var(--hero-muted)}
+.hero .fund b{font-size:20px}
+.hero .links{position:relative;display:flex;gap:16px;flex-wrap:wrap}
 .hero .setb{position:relative;background:none;border:0;color:var(--on-acc);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 0 0;opacity:.9}
 .dot{display:inline-block;width:9px;height:9px;border-radius:3px;flex:none}
 .d-inc{background:var(--inc)} .d-exp{background:var(--exp)}
@@ -739,7 +743,7 @@ $('meChip').addEventListener('click',()=>setTab('settings'));
 
 function setLedger(key){
   S.cur=key; lsSet('ledger', key);
-  S.byMonth={}; S.loaded=false; S.members=[]; S.tok++; S.mtok++; S.pending=null; S.famMeta=null;
+  S.byMonth={}; S.loaded=false; S.members=[]; S.allBase=null; S.tok++; S.mtok++; S.pending=null; S.famMeta=null;
   $('app').className = 'wrap ' + (key==='me' ? 'acc-me' : 'acc-fam');
   $('bnav').className = 'bnav ' + (key==='me' ? 'acc-me' : 'acc-fam');
   $('addSheet').className = key==='me' ? 'acc-me' : 'acc-fam';
@@ -817,7 +821,7 @@ async function loadMembers(){
     runRecurring();
   } catch(e){ if (t===S.mtok) toast(errText(e)); }
 }
-function refreshAll(){ if (!S.me) return; S.allRows=null; flushOutbox(); loadYear(true); if (curFam()) loadMembers(); }
+function refreshAll(){ if (!S.me) return; S.allRows=null; S.allBase=null; flushOutbox(); loadYear(true); if (curFam()) loadMembers(); }
 setInterval(()=>{ if (document.visibilityState==='visible') refreshAll(); }, 60000);
 document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState==='visible' && S.lastSync && Date.now()-S.lastSync>15000) refreshAll(); });
 
@@ -946,6 +950,15 @@ function renderHero(){
       h('div',{class:'btrack'}, h('div',{class:'bfill'+(used>1?' over':used>=0.85?' warn':''),style:`width:${Math.min(100,used*100).toFixed(1)}%`})),
       h('button',{type:'button',class:'setb',text:'改預算',onclick:openBudget}));
   } else bud=h('button',{type:'button',class:'setb',text:'＋ 設定每月預算',onclick:openBudget});
+  const op=openingOf(); let fund=null, fundLink=null;
+  if (op){
+    const bal=balanceAt(S.month);
+    if (bal===undefined) fund=h('div',{class:'fund'}, h('span',{text:'資金：計緊…'}));
+    else if (bal!==null) fund=h('div',{class:'fund'}, h('span',{text: S.month===tm ? '而家資金' : `${Number(S.month.slice(5))}月底資金`}), h('b',{text:signed(bal)}),
+      h('button',{type:'button',class:'setb',style:'padding:0',text:'改開始資金',onclick:openOpening}));
+    else fund=h('div',{class:'fund'}, h('span',{text:`開始資金由 ${op.date} 起計`}), h('button',{type:'button',class:'setb',style:'padding:0',text:'改',onclick:openOpening}));
+  } else fundLink=h('button',{type:'button',class:'setb',text:'＋ 設定開始資金',onclick:openOpening});
+  if (fundLink) bud = bud.classList.contains('budget') ? h('div',{}, bud, fundLink) : h('div',{class:'links'}, bud, fundLink);
   box.append(h('div',{class:'hero'},
     h('div',{class:'lbl2',text:`${fam?fam.name+' · ':''}${Number(S.month.slice(5))}月結餘`}),
     h('div',{class:'big',text:signed(t.net)}),
@@ -953,7 +966,7 @@ function renderHero(){
       h('div',{class:'pill'}, h('span',{}, h('i',{class:'dot d-inc'}),'收入'), h('b',{text:money(t.inc)})),
       h('div',{class:'pill'}, h('span',{}, h('i',{class:'dot d-exp'}),'支出'), h('b',{text:money(t.exp)}), cmp?h('small',{text:cmp}):null)),
     h('div',{class:'foot'}, h('span',{text: avg || `共 ${E.length} 筆`}), h('span',{text:`今年累積 ${signed(ytd)}`})),
-    bud));
+    fund, bud));
 }
 async function saveFamMeta(fam, mutate){
   const r=await callRetry({op:'members', auth:fAuth(fam)});
@@ -968,6 +981,44 @@ async function saveFamMeta(fam, mutate){
 }
 async function saveLedgerMeta(mutate){ const f=curFam(); if (f) return saveFamMeta(f, mutate); await saveProfile(mutate); return S.profile; }
 function budgetOf(){ const f=curFam(); const v=f ? (S.famMeta&&S.famMeta.budget) : (S.profile&&S.profile.budget); return Number(v)>0 ? Number(v) : 0; }
+function openingOf(){ const m=ledgerMeta(); const o=m && m.opening; return o && /^\d{4}-\d{2}-\d{2}$/.test(o.date) && isFinite(Number(o.amt)) ? {amt:Number(o.amt), date:o.date} : null; }
+let baseBusy=false;
+function balanceAt(month){
+  const op=openingOf(); if (!op) return null;
+  const end=`${month}-31`; if (op.date>end) return null;
+  const net=e=>(e.type==='in'?e.amt:-e.amt);
+  let total=op.amt;
+  const yr=String(S.year);
+  for (const m of Object.keys(S.byMonth)) for (const e of S.byMonth[m]) if (e.date && e.date>=op.date && e.date<=end) total+=net(e);
+  if (op.date.slice(0,4)<yr || month.slice(0,4)>yr){
+    if (!S.allBase || S.allBase.led!==S.cur){
+      if (!baseBusy){ baseBusy=true; const led=S.cur; allEntries().then(list=>{ if (S.cur===led){ S.allBase={led, list}; renderAll(); } }).catch(()=>{ if (S.cur===led){ S.allBase={led, list:[], partial:true}; renderAll(); } }).finally(()=>{ baseBusy=false; }); }
+      return undefined;
+    }
+    for (const e of S.allBase.list) if (e.date && e.date.slice(0,4)!==yr && e.date>=op.date && e.date<=end) total+=net(e);
+  }
+  return Math.round(total*100)/100;
+}
+function openOpening(){
+  const fam=curFam(), p=$('detailPanel'); p.replaceChildren();
+  const cur=openingOf();
+  const inp=h('input',{id:'oAmt',inputmode:'decimal',autocomplete:'off',placeholder:'例如 50000',value:cur?String(cur.amt):''});
+  const dt=h('input',{id:'oDate',type:'date',min:'2010-01-01',value:cur?cur.date:todayStr()});
+  const err=h('p',{class:'err',hidden:true});
+  const save=async o=>{
+    try { await saveLedgerMeta(m=>{ if (o) m.opening=o; else delete m.opening; }); S.allBase=null; closeSheets(); renderAll(); toast(o ? `開始資金已設為 ${money(o.amt)}（${o.date} 起）` : '已取消開始資金'); }
+    catch(e){ err.textContent=e && e.code==='network' ? ERR.need_online : errText(e); err.hidden=false; }
+  };
+  p.append(h('div',{class:'grab'}),
+    h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:'開始資金'}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:()=>closeSheets()}, icon('close'))),
+    h('p',{class:'note',text: (fam ? `「${fam.name}」` : '私人帳') + '開始記帳嗰日本身有幾多錢，例如銀行戶口結餘。之後首頁會顯示「而家資金」＝開始資金＋之後收入－之後支出。'}),
+    h('div',{class:'amt'}, h('span',{text:'HK$'}), inp),
+    h('div',{class:'field'}, h('label',{for:'oDate',text:'由邊日開始計（呢日同之後嘅記錄會計入）'}), dt), err,
+    h('div',{class:'two'},
+      h('button',{type:'button',class:'primary',text:'儲存',onclick:()=>{ const v=Number(String(inp.value).replace(/[,\s$]/g,'')); if (inp.value.trim()==='' || !isFinite(v) || Math.abs(v)>=1e10){ err.textContent='請輸入金額（可以係 0）'; err.hidden=false; return; } if (!/^\d{4}-\d{2}-\d{2}$/.test(dt.value)){ err.textContent='請揀日期'; err.hidden=false; return; } save({amt:Math.round(v*100)/100, date:dt.value}); }}),
+      h('button',{type:'button',class:'ghost',style:'justify-content:center',text:'唔設開始資金',onclick:()=>save(null)})));
+  openSheet('detailSheet'); setTimeout(()=>inp.focus(),60);
+}
 function openBudget(){
   const fam=curFam(), p=$('detailPanel'); p.replaceChildren();
   const cur=budgetOf();
