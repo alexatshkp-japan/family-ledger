@@ -682,26 +682,36 @@ async function sendOp(it){
   if (it.kind==='edit') return callRetry({op:'edit', auth, entry:it.row});
   return callRetry({op:'del', auth, id:it.eid});
 }
-async function writeOp(it){
-  try { await sendOp(it); return 'sent'; }
-  catch(e){ if (e && e.code==='network'){ outboxPush(it); S.offline=true; setSync(); return 'queued'; } throw e; }
+// 即刻儲存：先放入部機嘅待上傳清單，畫面即刻更新，背後先上傳去 Google。
+function queueOp(it){
+  outboxPush(it); setSync();
+  setTimeout(()=>flushOutbox({quiet:true}), 0);
+  return navigator.onLine===false ? 'queued' : 'saved';
 }
-let flushing=false;
-async function flushOutbox(){
-  if (flushing || !S.me || navigator.onLine===false || !outbox().length) return;
-  flushing=true; let sent=0;
+let flushing=false, flushAgain=false, netWarned=0;
+async function flushOutbox(opts){
+  const quiet=!!(opts && opts.quiet);
+  if (!S.me || navigator.onLine===false || !outbox().length) return;
+  if (flushing){ flushAgain=true; return; }
+  flushing=true; let sent=0, netFail=false;
   try {
     for (;;){
       const b=outbox(); if (!b.length) break;
       try { await sendOp(b[0]); sent++; }
-      catch(e){ if (e && e.code==='network') break; toast('有一筆離線記錄上傳唔到：'+errText(e)); }
+      catch(e){ if (e && e.code==='network'){ netFail=true; break; } toast('有一筆記錄上傳唔到：'+errText(e)); }
       outboxSet(outbox().slice(1));
     }
   } finally {
     flushing=false;
-    if (sent){ S.offline=false; toast(`已上傳 ${sent} 筆離線記錄`); S.allRows=null; loadYear(true); } else setSync();
+    if (sent){ S.offline=false; S.lastSync=new Date(); S.allRows=null; }
+    if (netFail){ S.offline=true; if (quiet && Date.now()-netWarned>60000){ netWarned=Date.now(); toast('網絡唔穩定，記錄已存喺部機，有網絡會自動上傳'); } }
+    if (sent && !quiet){ toast(`已上傳 ${sent} 筆離線記錄`); loadYear(true); } else setSync();
+    if (flushAgain){ flushAgain=false; if (!netFail) setTimeout(()=>flushOutbox({quiet:true}),0); }
   }
 }
+// 開記帳畫面時先叫醒 Google 後台，令背後上傳快啲
+let lastWarm=0;
+function warmUp(){ if (!S.me || navigator.onLine===false || Date.now()-lastWarm<240000) return; lastWarm=Date.now(); call({op:'hello'}).catch(()=>{}); }
 window.addEventListener('online', ()=>{ S.offline=false; flushOutbox(); refreshAll(); });
 window.addEventListener('offline', ()=>{ S.offline=true; setSync(); });
 async function fetchProfile(){
@@ -982,6 +992,7 @@ function syncRepeat(){
 }
 $('fDate').addEventListener('change', syncRepeat);
 function openAdd(e){
+  warmUp();
   const editing = e && e.id ? e : null;
   if (S.editing && !editing){ $('fAmt').value=''; $('fItem').value=''; $('fNote').value=''; $('fDate').value=todayStr(); }
   S.editing = editing;
@@ -1162,7 +1173,7 @@ function openDetail(e){
     clearTimeout(t); del.disabled=true; del.textContent='刪除緊…';
     const ledger=S.cur;
     try {
-      const how=await writeOp({kind:'del', led:ledger, eid:e.id});
+      const how=queueOp({kind:'del', led:ledger, eid:e.id});
       if (S.cur===ledger){ const arr=S.byMonth[e.m]; if (arr) S.byMonth[e.m]=arr.filter(x=>x.id!==e.id); renderAll(); }
       S.allRows=null; if (!$('searchArea').hidden) doSearch();
       closeSheets(); toast(how==='queued' ? '已刪除（未有網絡，會自動同步）' : '已刪除');
@@ -1557,20 +1568,23 @@ $('addForm').addEventListener('submit', async ev=>{
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date<`${MIN_YEAR}-01-01`) return fail('請揀日期');
   const rec={type:S.type, amt:Math.round(amt*100)/100, cat:S.cat[S.type], item:item.slice(0,60), date, note:$('fNote').value.trim().slice(0,120)};
   const m=date.slice(0,7), fam=curFam(), btn=$('fSubmit'), ledger=S.cur, key=ledKey(), auth=ledAuth();
+  if (btn.disabled) return;
   const old=btn.textContent; btn.disabled=true; btn.textContent='儲存緊…';
   try {
     const payload={...rec}, ed=S.editing;
     if (fam){ const by=$('fWho').value || fam.mid; const mm=S.members.find(x=>x.uid===by); payload.by=by; payload.bn=(mm&&mm.nick)||(ed&&ed.by===by?ed.bn:'')||''; payload.rec=(ed&&ed.rec)||fam.mid; }
     const id=ed?ed.id:rid(), at=ed?(ed.at||Date.now()):Date.now(), c=await encJSON(key, payload);
     const row={id, m, at, iv:c.iv, ct:c.ct};
-    const how=await writeOp(ed ? {kind:'edit', led:ledger, row} : {kind:'add', led:ledger, row});
+    const how=queueOp(ed ? {kind:'edit', led:ledger, row} : {kind:'add', led:ledger, row});
     let ruleMsg='';
     if (!ed && $('fRepeat').checked){
       const day=Number($('fDay').value)||1;
       const rule={id:rid(), type:rec.type, amt:rec.amt, cat:rec.cat, item:rec.item, note:rec.note, day, start:m, done:m};
       if (fam){ rule.by=payload.by; rule.bn=payload.bn; rule.rec=fam.mid; }
-      try { await saveLedgerMeta(meta=>{ meta.rules=Array.isArray(meta.rules)?meta.rules:[]; meta.rules.push(rule); }); ruleMsg=`，之後每月 ${day} 號會自動記`; setTimeout(()=>{ renderRecur(); runRecurring(); },0); }
-      catch(e2){ ruleMsg='（每月自動記要有網絡先設定到）'; }
+      ruleMsg=`，之後每月 ${day} 號會自動記`;
+      saveLedgerMeta(meta=>{ meta.rules=Array.isArray(meta.rules)?meta.rules:[]; meta.rules.push(rule); })
+        .then(()=>{ renderRecur(); runRecurring(); })
+        .catch(()=>toast('每月自動記設定唔到，要有網絡先得，請再試'));
     }
     $('fAmt').value=''; $('fItem').value=''; $('fNote').value='';
     S.editing=null; S.allRows=null; closeSheets();
