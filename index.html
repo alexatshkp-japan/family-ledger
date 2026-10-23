@@ -343,6 +343,13 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
   padding:10px 16px;border-radius:12px;font-size:15px;max-width:calc(100% - 32px);z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{transform:translate(-50%,8px);opacity:0}}}
 .primary.danger-fill{background:var(--danger);color:#fff}
+.pwwrap{position:relative;display:flex}
+.pwwrap input{flex:1;min-width:0;padding-right:52px}
+.pweye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:40px;display:grid;place-items:center;background:none;border:0;color:var(--mut,#667);cursor:pointer;border-radius:10px}
+.pweye svg{width:22px;height:22px}
+.pweye[aria-pressed="true"]{color:var(--acc)}
+.fampw{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fampw code{font:600 18px/1.3 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;background:var(--chip,rgba(127,127,127,.12));padding:8px 12px;border-radius:10px;word-break:break-all;flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -583,6 +590,8 @@ const SVGNS='http://www.w3.org/2000/svg';
 function sv(tag, attrs){ const el=document.createElementNS(SVGNS,tag); for (const [k,v] of Object.entries(attrs||{})) el.setAttribute(k,v); return el; }
 const ICONS = {
   lock:'M5 10.5h14v9.5H5zM8 10.5V8a4 4 0 018 0v2.5',
+  eye:'M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM12 9.2a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6z',
+  eyeoff:'M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM12 9.2a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6zM4 4l16 16',
   home:'M3.5 11L12 4l8.5 7M6 9.5V20h12V9.5',
   plus:'M12 5v14M5 12h14',
   list:'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
@@ -598,6 +607,18 @@ const ICONS = {
   copy:'M9 9h11v11H9zM5 15H4V4h11v1'
 };
 function icon(name){ const s=sv('svg',{viewBox:'0 0 24 24','aria-hidden':'true'}); s.append(sv('path',{d:ICONS[name],fill:'none',stroke:'currentColor','stroke-width':'1.9','stroke-linecap':'round','stroke-linejoin':'round'})); return s; }
+// 密碼格加「顯示／隱藏」掣
+function pwToggle(inp){
+  if (!inp || inp.dataset.pw) return inp; inp.dataset.pw='1';
+  const wrap=h('div',{class:'pwwrap'});
+  const btn=h('button',{type:'button',class:'pweye','aria-label':'顯示密碼','aria-pressed':'false'});
+  const set=show=>{ inp.type=show?'text':'password'; btn.replaceChildren(icon(show?'eyeoff':'eye')); btn.setAttribute('aria-label', show?'隱藏密碼':'顯示密碼'); btn.setAttribute('aria-pressed', String(show)); };
+  btn.addEventListener('click', ()=>{ const pos=inp.selectionStart; set(inp.type==='password'); inp.focus(); try{ if(pos!=null) inp.setSelectionRange(pos,pos); }catch{} });
+  inp.replaceWith(wrap); wrap.append(inp, btn); set(false);
+  return wrap;
+}
+['aPass','aPass2','jPass'].forEach(id=>pwToggle(document.getElementById(id)));
+function hidePasswords(root){ (root||document).querySelectorAll('.pwwrap input').forEach(i=>{ if (i.type!=='password'){ const b=i.nextElementSibling; if (b) b.click(); } }); }
 const glyph = (type, cat, cls) => h('span',{class:`glyph ${type}${cls?' '+cls:''}`,'aria-hidden':'true',text:GLYPH[cat]||cat.slice(0,1)});
 
 const S = { me:null, profile:null, fams:[], keyCache:new Map(), decCache:new Map(), appUrl:SITE_URL,
@@ -729,7 +750,7 @@ async function applyProfile(p){
   for (const f of p.families){
     try {
       let key=S.keyCache.get(f.fid); if (!key){ key=await importKey(unb64(f.key)); S.keyCache.set(f.fid,key); }
-      out.push({fid:f.fid, name:String(f.name||'家庭').slice(0,40), nick:String(f.nick||'').slice(0,20), mid:f.mid, ftoken:f.ftoken, joinedAt:Number(f.joinedAt)||0, key});
+      out.push({fid:f.fid, name:String(f.name||'家庭').slice(0,40), nick:String(f.nick||'').slice(0,20), mid:f.mid, ftoken:f.ftoken, pass:typeof f.pass==='string'?f.pass:'', joinedAt:Number(f.joinedAt)||0, key});
     } catch {}
   }
   out.sort((a,b)=>a.joinedAt-b.joinedAt);
@@ -790,14 +811,14 @@ $('authForm').addEventListener('submit', async ev=>{
       await call({op:'register', nameKey:k.nameKey, token:k.token, profile:prof});
     }
     await startSession(name, k.nameKey, k.token, k.keyRaw, remember);
-    $('aPass').value=''; $('aPass2').value='';
+    hidePasswords(); $('aPass').value=''; $('aPass2').value='';
     if (S.authMode==='register') toast('帳戶開好咗，歡迎！撳下面「＋」記第一筆。');
   } catch(e){ fail(errText(e)); }
   finally { btn.disabled=false; btn.textContent=old; }
 });
 function logout(){
   lsDel(SESSION); S.me=null; S.profile=null; S.fams=[]; S.keyCache.clear(); S.decCache.clear(); S.tok++; S.mtok++;
-  $('aPass').value=''; showAuth(); setAuthMode('login'); toast('已登出');
+  hidePasswords(); $('aPass').value=''; showAuth(); setAuthMode('login'); toast('已登出');
 }
 
 /* ---------- navigation ---------- */
@@ -1405,6 +1426,7 @@ function renderFamPanel(full){
   p.append(
     h('section',{class:'card'}, h('div',{class:'card-h'}, h('h3',{text:`「${fam.name}」成員`}), h('span',{class:'aside',text:'剔走就唔計入夾數'})), ul),
     invite,
+    famPwCard(fam),
     h('section',{class:'card stack'}, h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'完全唔用手機嘅成員'})),
       h('p',{class:'note',text:'例如婆婆、爺爺：加佢做「代記成員」，佢俾錢或者收錢之後話你知，你記帳時喺「邊個付錢」揀返佢。'}),
       h('div',{class:'inline'}, h('div',{class:'field'}, h('label',{for:'proxyIn',text:'稱呼'}), pIn), pAdd)),
@@ -1412,6 +1434,44 @@ function renderFamPanel(full){
       h('div',{class:'inline'}, h('div',{class:'field'}, h('label',{for:'nickIn',text:'你嘅稱呼'}), nickIn), save),
       h('div',{}, leave),
       h('p',{class:'note',text:'退出之後，你之前記低嘅家庭記錄會保留俾其他成員睇。想再加入，用返同一個家庭名稱同密碼就得。'})));
+}
+function famPwCard(fam){
+  const card=h('section',{class:'card stack',id:'famPwCard'},
+    h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'家庭密碼'}), h('span',{class:'aside',text:'只有你自己睇到'})));
+  if (fam.pass){
+    const MASK='•'.repeat(Math.min(Math.max(fam.pass.length,6),12));
+    const code=h('code',{id:'famPwText',text:MASK});
+    const eye=h('button',{type:'button',class:'ghost',id:'famPwShow','aria-pressed':'false'}, icon('eye'), '顯示');
+    eye.addEventListener('click', ()=>{
+      const show=eye.getAttribute('aria-pressed')!=='true';
+      code.textContent=show?fam.pass:MASK; eye.setAttribute('aria-pressed',String(show));
+      eye.replaceChildren(icon(show?'eyeoff':'eye'), show?'隱藏':'顯示');
+    });
+    card.append(h('div',{class:'fampw'}, code, eye,
+        h('button',{type:'button',class:'ghost',onclick:()=>copyText(fam.pass, card)}, icon('copy'), '複製')),
+      h('p',{class:'note',text:'密碼經加密存喺你嘅私人資料，Google 試算表入面都係亂碼，只有你登入之後先睇到。屋企人加入時要用到，可以複製再私下傳俾佢。'}));
+  } else {
+    const inp=h('input',{id:'famPwIn',type:'password',maxlength:'64',autocomplete:'off',placeholder:'輸入「'+fam.name+'」嘅家庭密碼'});
+    const err=h('p',{class:'err',hidden:true,id:'famPwErr'});
+    const keep=h('button',{type:'button',class:'primary',id:'famPwSave',text:'記低'});
+    keep.addEventListener('click', async ()=>{
+      err.hidden=true; const pass=inp.value;
+      const fail=m=>{ err.textContent=m; err.hidden=false; };
+      if (!pass) return fail('請輸入家庭密碼');
+      if (navigator.onLine===false) return fail(ERR.need_online);
+      keep.disabled=true; keep.textContent='核對緊…';
+      try {
+        const k=await familyKeys(fam.name, pass);
+        if (k.fid!==fam.fid || k.ftoken!==fam.ftoken){ keep.disabled=false; keep.textContent='記低'; return fail('家庭密碼唔啱，請再試'); }
+        await saveProfile(pr=>{ const f=pr.families.find(x=>x.fid===fam.fid); if (f) f.pass=pass; });
+        toast('已記低家庭密碼'); renderFamPanel(true);
+      } catch(e){ keep.disabled=false; keep.textContent='記低'; fail(e && e.code==='network' ? ERR.need_online : errText(e)); }
+    });
+    inp.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); keep.click(); } });
+    card.append(h('p',{class:'note',text:'呢個家庭係新功能之前加入，所以未記低密碼。輸入一次（會核對啱唔啱），以後就可以喺度睇返。'}),
+      h('div',{class:'inline'}, h('div',{class:'field'}, h('label',{for:'famPwIn',text:'家庭密碼'}), pwToggle(inp)), keep), err);
+  }
+  return card;
 }
 function openLeave(fam){
   const p=$('detailPanel'); p.replaceChildren();
@@ -1439,7 +1499,7 @@ function openLeave(fam){
   p.append(h('div',{class:'grab'}),
     h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:`退出「${fam.name}」？`}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:()=>closeSheets()}, icon('close'))),
     h('p',{class:'note',text:'為咗安全，請輸入呢個家庭嘅密碼確認。退出之後你之前記低嘅家庭記錄會保留俾其他成員睇；想再加入，用返同一個家庭名稱同密碼就得。'}),
-    h('div',{class:'field'}, h('label',{for:'lvPass',text:'家庭密碼'}), inp), err,
+    h('div',{class:'field'}, h('label',{for:'lvPass',text:'家庭密碼'}), pwToggle(inp)), err,
     h('div',{class:'two'}, go, h('button',{type:'button',class:'ghost',style:'justify-content:center',text:'取消',onclick:()=>closeSheets()})));
   openSheet('detailSheet'); setTimeout(()=>inp.focus(),60);
 }
@@ -1666,8 +1726,8 @@ $('joinForm').addEventListener('submit', async ev=>{
     const mid = already ? already.mid : 'm'+rid();
     await writeMember({fid, key, ftoken}, mid, {nick, split:true});
     S.keyCache.set(fid,key);
-    await saveProfile(p=>{ p.families=p.families.filter(f=>f.fid!==fid); p.families.push({fid, name:famName, key:b64(keyRaw), ftoken, mid, nick, joinedAt: already?already.joinedAt:Date.now()}); });
-    $('jPass').value=''; $('jName').value='';
+    await saveProfile(p=>{ p.families=p.families.filter(f=>f.fid!==fid); p.families.push({fid, name:famName, key:b64(keyRaw), ftoken, mid, nick, pass, joinedAt: already?already.joinedAt:Date.now()}); });
+    hidePasswords(); $('jPass').value=''; $('jName').value='';
     toast(r.existed ? (mode==='create' ? `「${famName}」已經存在，已幫你加入` : `已加入「${famName}」`) : `已建立「${famName}」`);
     setLedger(fid);
   } catch(err){ fail(errText(err)); }
@@ -1837,6 +1897,7 @@ async function boot(){
     else showAuth(errText(e)+' 可以撳「登入」再試。', s.name);
   }
 }
+if (window.UKEI_API) window.__ukeiTest={saveProfile, renderFamPanel};
 boot();
 })();
 </script>
