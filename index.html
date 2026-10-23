@@ -84,7 +84,7 @@ body.big .hero .lbl2,body.big .hero .foot,body.big .hero .pill span,body.big .he
 body.big .glyph{width:46px;height:46px;font-size:19px} body.big .row{grid-template-columns:46px 1fr auto}
 body.big .stat .v{font-size:19px} body.big .tbl{font-size:15px} body.big .card-h h3{font-size:18px}
 body.big .cat{font-size:14px} body.big .cat .glyph{width:50px;height:50px}
-body.big input,body.big select{font-size:18px} body.big .pnav b{font-size:20px} body.big .settle-mini{font-size:17px}
+body.big input,body.big select{font-size:18px} body.big .pnav b{font-size:20px}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .setrow input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc)}
 [hidden]{display:none!important}
@@ -193,8 +193,6 @@ input::placeholder{color:var(--muted);opacity:.7}
 .dot{display:inline-block;width:9px;height:9px;border-radius:3px;flex:none}
 .d-inc{background:var(--inc)} .d-exp{background:var(--exp)}
 .hero .d-inc,.hero .d-exp{box-shadow:0 0 0 1.5px rgba(255,255,255,.75)}
-.settle-mini{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--acc-soft);border-radius:12px;padding:11px 14px;font-size:15px;cursor:pointer;border:0;width:100%;text-align:left}
-.settle-mini b{font-variant-numeric:tabular-nums}
 
 /* list */
 .day{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
@@ -399,7 +397,6 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
     </div>
     <div id="ledgerMain" class="stack">
       <div id="hero"></div>
-      <div id="settleMini"></div>
       <div id="list" class="stack" aria-label="記錄"></div>
     </div>
   </main>
@@ -453,7 +450,6 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
       <label class="setrow" for="showPayer"><span>家庭帳顯示邊個付／收<br><span class="note">記錄下面嘅「你付」、「媽咪收」</span></span><input type="checkbox" id="showPayer"></label>
       <label class="setrow" for="showAvg"><span>首頁顯示平均每日支出</span><input type="checkbox" id="showAvg"></label>
       <label class="setrow" for="showYtd"><span>首頁顯示今年累積</span><input type="checkbox" id="showYtd"></label>
-      <label class="setrow" for="settleTip"><span>首頁顯示夾數提示<br><span class="note">例如「婆婆 俾 你 $200」。詳細夾數一樣喺「報表」睇到。</span></span><input type="checkbox" id="settleTip"></label>
       <div class="grp"><span class="lbl">主題顏色</span><div class="swatches" id="swatches" role="radiogroup" aria-label="主題顏色"></div></div>
       <div class="grp"><span class="lbl">深色／淺色</span>
         <div class="seg full" role="radiogroup" aria-label="深色淺色" id="modeSeg">
@@ -979,18 +975,22 @@ function buildCats(){
     glyph(S.type,c), h('span',{text:c}))));
   box.append(h('button',{type:'button',class:'cat addcat','aria-label':'加自訂類別',onclick:()=>{ const r=$('newCatRow'); r.hidden=!r.hidden; if (!r.hidden) $('newCat').focus(); }}, h('span',{class:'glyph',text:'＋'}), h('span',{text:'自訂'})));
 }
-async function addCustomCat(type, v){
+// 即刻加入類別：先改部機嘅設定，背後先儲存去 Google
+function addCustomCat(type, v){
   v=String(v||'').trim().slice(0,6);
   if (!v) throw {code:'bad_name'};
-  await saveLedgerMeta(m=>{ m.cats=m.cats||{}; const arr=Array.isArray(m.cats[type])?m.cats[type]:[]; if (!arr.includes(v) && !CATS[type].includes(v)) arr.push(v); m.cats[type]=arr; });
+  const mut=m=>{ m.cats=m.cats||{}; const arr=Array.isArray(m.cats[type])?m.cats[type]:[]; if (!arr.includes(v) && !CATS[type].includes(v)) arr.push(v); m.cats[type]=arr; };
+  const fam=curFam();
+  if (fam){ if (!S.famMeta) S.famMeta={name:fam.name}; mut(S.famMeta); } else if (S.profile) mut(S.profile);
+  saveLedgerMeta(mut).then(()=>{ buildCats(); renderCatCard(); })
+    .catch(e=>toast(`類別「${v}」未儲存到（${e && e.code==='network' ? '冇網絡' : errText(e)}），今次記帳照用得，之後再加一次就得`));
   return v;
 }
 $('newCatAdd').addEventListener('click', async ()=>{
   const b=$('newCatAdd'), v=$('newCat').value.trim().slice(0,6);
   if (!v){ toast('請輸入類別名稱'); return; }
-  b.disabled=true;
-  try { await addCustomCat(S.type, v); S.cat[S.type]=v; $('newCat').value=''; $('newCatRow').hidden=true; buildCats(); renderCatCard(); toast(`已加入類別「${v}」`); }
-  catch(e){ toast(e && e.code==='network' ? ERR.need_online : errText(e)); } finally { b.disabled=false; }
+  try { addCustomCat(S.type, v); S.cat[S.type]=v; $('newCat').value=''; $('newCatRow').hidden=true; buildCats(); renderCatCard(); toast(`已加入類別「${v}」`); }
+  catch(e){ toast(errText(e)); }
 });
 // 手機「返回」鍵／手勢：有彈出視窗時先關視窗，唔會離開 app
 function openSheet(id){
@@ -1033,7 +1033,7 @@ function renderAll(){
   if (!S.me) return;
   $('mLabel').textContent = monthLabel(S.month);
   $('mPrev').disabled = S.month<=`${MIN_YEAR}-01`;
-  renderHero(); renderSettleMini(); renderList();
+  renderHero(); renderList();
   if (S.tab==='report') renderReport();
 }
 function renderHero(){
@@ -1085,7 +1085,13 @@ async function saveFamMeta(fam, mutate){
   if (S.cur===fam.fid) S.famMeta=meta;
   return meta;
 }
-async function saveLedgerMeta(mutate){ const f=curFam(); if (f) return saveFamMeta(f, mutate); await saveProfile(mutate); return S.profile; }
+// 帳簿設定逐個排隊儲存，避免兩個背後儲存互相蓋過
+let metaQ=Promise.resolve();
+function saveLedgerMeta(mutate){
+  const f=curFam();
+  const run=async()=>{ if (f) return saveFamMeta(f, mutate); await saveProfile(mutate); return S.profile; };
+  const pr=metaQ.then(run); metaQ=pr.catch(()=>{}); return pr;
+}
 function budgetOf(){ const f=curFam(); const v=f ? (S.famMeta&&S.famMeta.budget) : (S.profile&&S.profile.budget); return Number(v)>0 ? Number(v) : 0; }
 function openingOf(){ const m=ledgerMeta(); const o=m && m.opening; return o && /^\d{4}-\d{2}-\d{2}$/.test(o.date) && isFinite(Number(o.amt)) ? {amt:Number(o.amt), date:o.date} : null; }
 let baseBusy=false;
@@ -1144,18 +1150,6 @@ function openBudget(){
       h('button',{type:'button',class:'primary',text:'儲存',onclick:()=>{ const v=Number(inp.value.replace(/[,\s$]/g,'')); if (!(v>0) || v>=1e9){ err.textContent='請輸入大過 0 嘅金額'; err.hidden=false; return; } saveB(Math.round(v*100)/100); }}),
       h('button',{type:'button',class:'ghost',style:'justify-content:center',text:'唔設預算',onclick:()=>saveB(0)})));
   openSheet('detailSheet'); setTimeout(()=>inp.focus(),60);
-}
-function renderSettleMini(){
-  const box=$('settleMini'); box.replaceChildren();
-  const fam=curFam(); if (!fam || !S.loaded || !S.members.length) return;
-  const E=S.byMonth[S.month]||[]; if (!E.some(e=>e.type==='out')) return;
-  const st=settle(E); if (!st.n) return;
-  const first=st.tx[0];
-  if (!first || lsGet('settleTip')!=='1') return;
-  box.append(h('button',{type:'button',class:'settle-mini',onclick:()=>{ S.view='month'; lsSet('view','month'); setTab('report'); }},
-    first ? h('span',{}, '夾數：', `${nameOf(first.from)} 俾 ${nameOf(first.to)} `, h('b',{text:money(first.amt)}), st.tx.length>1?` 等 ${st.tx.length} 項`:'')
-          : h('span',{text:'夾數：大家啱啱好，唔使找數'}),
-    h('span',{class:'note',text:'詳情 ›'})));
 }
 function renderList(){
   const box=$('list'); box.replaceChildren();
@@ -1224,19 +1218,6 @@ function catCard(E, type){
       h('div',{}, h('div',{class:'meta'}, h('span',{text:`${c} · ${Math.round(v/tot*100)}%`}), h('span',{text:money(v)})),
         h('div',{class:'track'}, h('div',{class:'fill '+(type==='in'?'f-inc':'f-exp'),style:`width:${Math.max(2,v/max*100).toFixed(1)}%`})))))));
 }
-function settle(E){
-  const parts=S.members.filter(m=>m.split);
-  const ids=new Set(parts.map(m=>m.uid));
-  const paid=new Map(parts.map(m=>[m.uid,0]));
-  E.forEach(e=>{ if (e.type==='out' && e.by && ids.has(e.by)) paid.set(e.by, paid.get(e.by)+e.amt); });
-  const total=sum([...paid.values()],v=>v), n=paid.size||1, avg=total/n;
-  const rows=[...paid].map(([uid,p])=>({uid,paid:p,bal:p-avg})).sort((a,b)=>b.paid-a.paid);
-  const cred=rows.filter(r=>r.bal>0.005).map(r=>({uid:r.uid,v:Math.round(r.bal*100)}));
-  const debt=rows.filter(r=>r.bal<-0.005).map(r=>({uid:r.uid,v:Math.round(-r.bal*100)}));
-  const tx=[]; let i=0,j=0;
-  while(i<debt.length && j<cred.length){ const v=Math.min(debt[i].v,cred[j].v); if (v>=1) tx.push({from:debt[i].uid,to:cred[j].uid,amt:v/100}); debt[i].v-=v; cred[j].v-=v; if(debt[i].v<=0)i++; if(cred[j].v<=0)j++; }
-  return {rows,avg,n:paid.size,tx,total};
-}
 function showCopyBox(txt, where){
   const ta=h('textarea',{class:'copybox',readonly:true,'aria-label':'可以複製嘅文字'}); ta.value=txt;
   (where||$('report')).append(h('div',{}, h('p',{class:'note',text:'自動複製唔到，請長按下面嘅文字，揀「全選」再複製：'}), ta));
@@ -1271,23 +1252,9 @@ function reportMonth(box){
   const E=S.byMonth[S.month]||[], fam=curFam(), t=totals(E);
   box.append(h('div',{class:'stats'}, stat('結餘', signed(t.net), null, netCls(t.net)), stat('收入', money(t.inc), 'd-inc'), stat('支出', money(t.exp), 'd-exp')));
   if (!E.length){ box.append(h('p',{class:'empty',text:`${monthLabel(S.month)}未有記錄。`})); return; }
-  let st=null;
-  if (fam && S.members.length){
-    st=settle(E);
-    if (st.n){
-      const card=h('section',{class:'card'}, h('div',{class:'card-h'}, h('h3',{text:'夾數'}), h('span',{class:'aside',text:`只計支出 · ${st.n} 人平分 · 每人 ${money(st.avg)}`})),
-        h('div',{class:'tbl-wrap'}, h('table',{class:'tbl'}, h('thead',{}, h('tr',{}, h('th',{text:'成員'}), h('th',{text:'已付'}), h('th',{text:'對比平均'}))),
-          h('tbody',{}, st.rows.map(r=>h('tr',{}, h('td',{text:nameOf(r.uid)}), h('td',{text:sm(r.paid)}),
-            h('td',{class: r.bal>0.005?'pos':r.bal<-0.005?'neg':'', text: Math.abs(r.bal)<0.005 ? '—' : (r.bal>0?'多付 ':'少付 ')+sm(Math.abs(r.bal))})))))));
-      if (st.tx.length) card.append(h('ul',{class:'tx'}, st.tx.map(x=>h('li',{}, `${nameOf(x.from)} 俾 ${nameOf(x.to)} `, h('b',{text:money(x.amt)})))));
-      else card.append(h('p',{class:'note',style:'margin-top:10px',text:'大家而家啱啱好，唔使找數。'}));
-      box.append(card);
-    }
-  }
   box.append(...[catCard(E,'out'), catCard(E,'in')].filter(Boolean));
   const L=[`屋企數簿｜${ledgerTitle()}｜${monthLabel(S.month)}`, `收入 ${money(t.inc)}`, `支出 ${money(t.exp)}`, `結餘 ${signed(t.net)}`];
   const tc=topCats(E,'out',3); if (tc) L.push(`支出最多：${tc}`);
-  if (st && st.tx.length){ L.push('夾數：'); st.tx.forEach(x=>L.push(`・${plainName(x.from)} 俾 ${plainName(x.to)} ${money(x.amt)}`)); }
   const share=h('section',{class:'card stack'}, h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'月結'}), h('span',{class:'aside',text:'俾長輩或者家庭群組'})));
   share.append(shareRow(L.join('\n'), share)); box.append(share);
 }
@@ -1424,7 +1391,7 @@ function renderFamPanel(full){
     h('p',{class:'note',text:'將 app 網址傳俾佢，佢用手機瀏覽器打開，開個名同密碼，再輸入家庭名稱同家庭密碼就得。'}));
   invite.append(shareRow(inviteTxt, invite));
   p.append(
-    h('section',{class:'card'}, h('div',{class:'card-h'}, h('h3',{text:`「${fam.name}」成員`}), h('span',{class:'aside',text:'剔走就唔計入夾數'})), ul),
+    h('section',{class:'card'}, h('div',{class:'card-h'}, h('h3',{text:`「${fam.name}」成員`}), h('span',{class:'aside',text:`${S.members.length||''} 人`})), ul),
     invite,
     famPwCard(fam),
     h('section',{class:'card stack'}, h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'完全唔用手機嘅成員'})),
@@ -1507,8 +1474,6 @@ function fillMembers(ul, fam){
   ul.replaceChildren();
   if (!S.members.length){ ul.append(h('li',{text:'載入緊…'})); return; }
   S.members.forEach(m=>{
-    const cb=h('input',{type:'checkbox',id:'sp_'+m.uid,'aria-label':`${m.nick} 參與夾數`}); cb.checked=m.split;
-    cb.addEventListener('change', async ()=>{ cb.disabled=true; try { await writeMember(fam, m.uid, {nick:m.nick, proxy:m.proxy||undefined, split:cb.checked}); m.split=cb.checked; renderAll(); } catch(err){ cb.checked=!cb.checked; toast(errText(err)); } finally { cb.disabled=false; } });
     let rm=null;
     if (m.proxy){
       let t; rm=h('button',{type:'button',class:'del',text:'移除'});
@@ -1519,7 +1484,7 @@ function fillMembers(ul, fam){
     }
     const nm=m.uid===fam.mid ? `${m.nick||'我'}（你）` : (m.nick||'成員');
     ul.append(h('li',{}, h('span',{class:'nm'}, h('span',{class:'avatar',text:(m.nick||'?').slice(0,1)}), h('span',{text:nm}), m.proxy? h('span',{class:'mini',text:'代記'}):null),
-      h('label',{class:'chk',for:'sp_'+m.uid}, cb, '夾數'), rm));
+      rm));
   });
 }
 
@@ -1876,13 +1841,12 @@ function applyLook(){
 }
 $('showPayer').addEventListener('change', e=>{ lsSet('showPayer', e.target.checked?'1':'0'); renderAll(); });
 ['showAvg','showYtd'].forEach(id=>$(id).addEventListener('change', e=>{ lsSet(id, e.target.checked?'1':'0'); renderAll(); }));
-$('settleTip').addEventListener('change', e=>{ lsSet('settleTip', e.target.checked?'1':'0'); renderAll(); });
 $('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if (!b) return; lsSet('mode', b.dataset.mode); applyLook(); });
 function applyBig(on){ document.body.classList.toggle('big', !!on); $('bigMode').checked=!!on; }
 $('bigMode').addEventListener('change', e=>{ lsSet('big', e.target.checked?'1':''); applyBig(e.target.checked); });
 async function boot(){
   applyBig(lsGet('big')==='1'); applyLook();
-  $('showPayer').checked = lsGet('showPayer')!=='0'; $('settleTip').checked = lsGet('settleTip')==='1';
+  $('showPayer').checked = lsGet('showPayer')!=='0';
   $('showAvg').checked = lsGet('showAvg')!=='0'; $('showYtd').checked = lsGet('showYtd')!=='0';
   paintIcons(); buildCats(); syncTypeUI(); setAuthMode('login');
   $('fDate').value = todayStr();
