@@ -342,6 +342,7 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);
   padding:10px 16px;border-radius:12px;font-size:15px;max-width:calc(100% - 32px);z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{transform:translate(-50%,8px);opacity:0}}}
+.primary.danger-fill{background:var(--danger);color:#fff}
 </style>
 </head>
 <body>
@@ -1396,17 +1397,7 @@ function renderFamPanel(full){
       toast('已更新稱呼'); loadMembers();
     } catch(err){ toast(errText(err)); } finally { save.disabled=false; }
   }});
-  let armT;
-  const leave=h('button',{type:'button',class:'ghost danger',text:'退出呢個家庭'});
-  leave.addEventListener('click', async ()=>{
-    if (leave.dataset.armed!=='1'){ leave.dataset.armed='1'; leave.textContent='再撳一次確認退出'; clearTimeout(armT); armT=setTimeout(()=>{leave.dataset.armed='0'; leave.textContent='退出呢個家庭';},4000); return; }
-    clearTimeout(armT); leave.disabled=true;
-    try {
-      await call({op:'delMember', auth:fAuth(fam), mid:fam.mid});
-      await saveProfile(pr=>{ pr.families=pr.families.filter(x=>x.fid!==fam.fid); });
-      toast(`已退出「${fam.name}」`); setLedger('me');
-    } catch(err){ leave.disabled=false; toast(errText(err)); }
-  });
+  const leave=h('button',{type:'button',class:'ghost danger',text:'退出呢個家庭',id:'leaveBtn',onclick:()=>openLeave(fam)});
   const inviteTxt = `屋企數簿（${fam.name}）：${S.appUrl}\n用手機打開，撳「開新帳戶」開個名同密碼（唔使 Google 帳戶）。之後撳下面「家庭」，輸入家庭名稱「${fam.name}」同家庭密碼（密碼另外話你知）。記得「加到主畫面」。`;
   const invite=h('section',{class:'card stack'}, h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'邀請屋企人'})),
     h('p',{class:'note',text:'將 app 網址傳俾佢，佢用手機瀏覽器打開，開個名同密碼，再輸入家庭名稱同家庭密碼就得。'}));
@@ -1421,6 +1412,36 @@ function renderFamPanel(full){
       h('div',{class:'inline'}, h('div',{class:'field'}, h('label',{for:'nickIn',text:'你嘅稱呼'}), nickIn), save),
       h('div',{}, leave),
       h('p',{class:'note',text:'退出之後，你之前記低嘅家庭記錄會保留俾其他成員睇。想再加入，用返同一個家庭名稱同密碼就得。'})));
+}
+function openLeave(fam){
+  const p=$('detailPanel'); p.replaceChildren();
+  const inp=h('input',{id:'lvPass',type:'password',autocomplete:'off',placeholder:'輸入「'+fam.name+'」嘅家庭密碼'});
+  const err=h('p',{class:'err',hidden:true,id:'lvErr'});
+  const fail=m=>{ err.textContent=m; err.hidden=false; };
+  const go=h('button',{type:'button',class:'primary danger-fill',id:'lvGo',text:'確認退出'});
+  go.addEventListener('click', async ()=>{
+    err.hidden=true;
+    const pass=inp.value;
+    if (!pass) return fail('請輸入家庭密碼');
+    if (navigator.onLine===false) return fail(ERR.need_online);
+    const old=go.textContent; go.disabled=true; go.textContent='核對緊…';
+    try {
+      const k=await familyKeys(fam.name, pass);
+      if (k.fid!==fam.fid || k.ftoken!==fam.ftoken){ inp.value=''; inp.focus(); return fail('家庭密碼唔啱，請再試'); }
+      go.textContent='退出緊…';
+      await call({op:'delMember', auth:fAuth(fam), mid:fam.mid});
+      await saveProfile(pr=>{ pr.families=pr.families.filter(x=>x.fid!==fam.fid); });
+      closeSheets(); toast(`已退出「${fam.name}」`); setLedger('me');
+    } catch(e){ fail(e && e.code==='network' ? ERR.need_online : errText(e)); }
+    finally { go.disabled=false; if (go.textContent!=='確認退出') go.textContent=old; }
+  });
+  inp.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); go.click(); } });
+  p.append(h('div',{class:'grab'}),
+    h('div',{class:'sheet-h'}, h('h3',{id:'dTitle',text:`退出「${fam.name}」？`}), h('button',{type:'button',class:'icbtn','aria-label':'關閉',onclick:()=>closeSheets()}, icon('close'))),
+    h('p',{class:'note',text:'為咗安全，請輸入呢個家庭嘅密碼確認。退出之後你之前記低嘅家庭記錄會保留俾其他成員睇；想再加入，用返同一個家庭名稱同密碼就得。'}),
+    h('div',{class:'field'}, h('label',{for:'lvPass',text:'家庭密碼'}), inp), err,
+    h('div',{class:'two'}, go, h('button',{type:'button',class:'ghost',style:'justify-content:center',text:'取消',onclick:()=>closeSheets()})));
+  openSheet('detailSheet'); setTimeout(()=>inp.focus(),60);
 }
 function fillMembers(ul, fam){
   ul.replaceChildren();
