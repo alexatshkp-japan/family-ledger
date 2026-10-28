@@ -348,6 +348,44 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
 .pweye[aria-pressed="true"]{color:var(--acc)}
 .fampw{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .fampw code{font:600 18px/1.3 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;background:var(--chip,rgba(127,127,127,.12));padding:8px 12px;border-radius:10px;word-break:break-all;flex:1;min-width:0}
+
+/* 字體大小：特細／細（標準 = 冇 class；大 = body.big） */
+body.fs-s{font-size:15px}
+body.fs-s .hero .big{font-size:30px;margin-bottom:12px} body.fs-s .hero .pill b{font-size:15px} body.fs-s .hero .fund b{font-size:17px}
+body.fs-s .money,body.fs-s .desc .it{font-size:15px} body.fs-s .stat .v{font-size:15px} body.fs-s .pnav b{font-size:16px}
+body.fs-s .detail-amt{font-size:28px} body.fs-s .amt input{font-size:30px} body.fs-s .card-h h3{font-size:15px}
+body.fs-s .glyph{width:36px;height:36px;font-size:15px} body.fs-s .row{grid-template-columns:36px 1fr auto;padding:9px 12px}
+body.fs-xs{font-size:14px}
+body.fs-xs .hero{padding:15px 15px 13px} body.fs-xs .hero .big{font-size:24px;margin-bottom:10px} body.fs-xs .hero .pill{padding:7px 10px} body.fs-xs .hero .pill b{font-size:14px} body.fs-xs .hero .fund b{font-size:15px}
+body.fs-xs .hero .lbl2,body.fs-xs .hero .foot{font-size:12px}
+body.fs-xs .money,body.fs-xs .desc .it{font-size:14px} body.fs-xs .desc .sub,body.fs-xs .day-h{font-size:12px} body.fs-xs .stat .v{font-size:14px} body.fs-xs .pnav b{font-size:15px}
+body.fs-xs .detail-amt{font-size:24px} body.fs-xs .amt input{font-size:26px} body.fs-xs .card-h h3{font-size:14.5px} body.fs-xs .tbl{font-size:12.5px}
+body.fs-xs .glyph{width:32px;height:32px;font-size:14px;border-radius:10px} body.fs-xs .row{grid-template-columns:32px 1fr auto;gap:10px;padding:8px 12px}
+body.fs-xs .brand b{font-size:19px}
+/* 背景圖案 */
+body{background-image:var(--pat,none);background-size:120px 120px}
+.patgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:10px}
+.pat{border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:0 0 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12.5px;color:var(--muted);overflow:hidden}
+.pat i{display:block;width:100%;height:58px;background-size:84px 84px;background-position:center}
+.pat[aria-checked="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc);color:var(--ink);font-weight:700}
+/* 結餘卡：漸變色＋圖案水印 */
+.hero{background:linear-gradient(140deg,var(--acc) 0%,var(--acc-2) 100%)}
+.hero-art{position:absolute;right:16px;top:46px;width:62px;height:62px;opacity:.2;pointer-events:none;color:var(--on-acc)}
+.hero-art svg{width:100%;height:100%;display:block}
+.hero .big.masked{cursor:pointer;letter-spacing:.06em}
+.hero .reveal{font-size:12px;font-weight:500;letter-spacing:0;color:var(--hero-muted);margin-left:10px;vertical-align:middle}
+.empty{background:var(--bg)}
+.empty-art{width:64px;height:64px;opacity:.55;color:var(--acc)}
+.empty-art svg{width:100%;height:100%;display:block}
+/* 頂部「眼仔」：顯示／隱藏金額 */
+.topbar .tright{display:flex;align-items:center;gap:6px}
+.eyebtn{height:38px;border-radius:19px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:flex;align-items:center;gap:6px;padding:0 12px;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.eyebtn svg{width:19px;height:19px}
+.eyebtn[aria-pressed="true"]{background:var(--acc-soft,var(--jade-soft));border-color:transparent;font-weight:700}
+.brand{min-width:0} .brand b{white-space:nowrap}
+.me-chip{white-space:nowrap} #who{max-width:6em;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:429px){ #who{display:none} .me-chip{padding:4px} }
+@media (max-width:340px){ .eyebtn span{display:none} .eyebtn{padding:0 10px} .brand b{font-size:18px;letter-spacing:.04em} }
 </style>
 </head>
 <body>
@@ -376,7 +414,8 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
   <header>
     <div class="topbar">
       <div class="brand"><img src="icon-192.png" alt=""><b>屋企數簿</b></div>
-      <button type="button" class="me-chip" id="meChip" aria-label="帳戶設定"><span class="avatar" id="avatar"></span><span id="who"></span></button>
+      <div class="tright"><button type="button" class="eyebtn" id="eyeBtn" aria-pressed="false" aria-label="隱藏金額"></button>
+      <button type="button" class="me-chip" id="meChip" aria-label="帳戶設定"><span class="avatar" id="avatar"></span><span id="who"></span></button></div>
     </div>
     <nav id="chips" class="chips" aria-label="帳簿"></nav>
   </header>
@@ -446,10 +485,18 @@ ol.steps{margin:0;padding-left:1.3em;color:var(--muted);font-size:14px;display:g
     <section class="card stack" id="accountCard"></section>
     <section class="card stack">
       <div class="card-h" style="margin:0"><h3>顯示</h3></div>
-      <label class="setrow" for="bigMode"><span>大字模式<br><span class="note">字同掣大啲，適合長輩。</span></span><input type="checkbox" id="bigMode"></label>
+      <div class="grp"><span class="lbl">字體大小</span>
+        <div class="seg full" role="radiogroup" aria-label="字體大小" id="fsSeg">
+          <button type="button" role="radio" data-fs="xs" aria-checked="false">特細</button>
+          <button type="button" role="radio" data-fs="s" aria-checked="false">細</button>
+          <button type="button" role="radio" data-fs="m" aria-checked="true">標準</button>
+          <button type="button" role="radio" data-fs="l" aria-checked="false">大</button>
+        </div><span class="note" style="font-size:13px">「大」適合長輩，字同掣都會大啲。</span></div>
+      <label class="setrow" for="hideOnOpen"><span>開 app 時隱藏金額<br><span class="note">金額會變做「••••」，撳頂部「顯示金額」或者結餘就即刻見返。</span></span><input type="checkbox" id="hideOnOpen"></label>
       <label class="setrow" for="showPayer"><span>家庭帳顯示邊個付／收<br><span class="note">記錄下面嘅「你付」、「媽咪收」</span></span><input type="checkbox" id="showPayer"></label>
       <label class="setrow" for="showAvg"><span>首頁顯示平均每日支出</span><input type="checkbox" id="showAvg"></label>
       <label class="setrow" for="showYtd"><span>首頁顯示今年累積</span><input type="checkbox" id="showYtd"></label>
+      <div class="grp"><span class="lbl">背景圖案</span><div class="patgrid" id="patGrid" role="radiogroup" aria-label="背景圖案"></div></div>
       <div class="grp"><span class="lbl">主題顏色</span><div class="swatches" id="swatches" role="radiogroup" aria-label="主題顏色"></div></div>
       <div class="grp"><span class="lbl">深色／淺色</span>
         <div class="seg full" role="radiogroup" aria-label="深色淺色" id="modeSeg">
@@ -545,9 +592,12 @@ const FMT = {
 // 每本帳簿可以揀港幣或者美元（只影響顯示，唔會換算）
 const curCode = () => { try { const m=ledgerMeta(); return m && m.currency==='USD' ? 'USD' : 'HKD'; } catch { return 'HKD'; } };
 const curSym = () => curCode()==='USD' ? 'US$' : 'HK$';
-const money = n => FMT[curCode()].format(Math.round((n||0)*100)/100);
-const signed = n => (n>0.004?'+':n<-0.004?'−':'') + money(Math.abs(n));
-const sm = n => { const v=Math.round((n||0)*100)/100; return (curCode()==='USD'?'US$':'$')+v.toLocaleString('en-US',{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2}); };
+let HIDE=false;   // true = 金額顯示做「••••」
+const MASK='••••';
+const real = fn => { const was=HIDE; HIDE=false; try { return fn(); } finally { HIDE=was; } };   // 分享、匯出用真數字
+const money = n => HIDE ? curSym()+' '+MASK : FMT[curCode()].format(Math.round((n||0)*100)/100);
+const signed = n => HIDE ? money(0) : (n>0.004?'+':n<-0.004?'−':'') + money(Math.abs(n));
+const sm = n => { if (HIDE) return (curCode()==='USD'?'US$':'$')+MASK; const v=Math.round((n||0)*100)/100; return (curCode()==='USD'?'US$':'$')+v.toLocaleString('en-US',{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2}); };
 const ssigned = n => (n>0.004?'+':n<-0.004?'−':'') + sm(Math.abs(n));
 const pad = n => String(n).padStart(2,'0');
 const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
@@ -835,6 +885,7 @@ function setLedger(key){
   $('app').className = 'wrap ' + (key==='me' ? 'acc-me' : 'acc-fam');
   $('bnav').className = 'bnav ' + (key==='me' ? 'acc-me' : 'acc-fam');
   $('addSheet').className = key==='me' ? 'acc-me' : 'acc-fam';
+  applyPattern();
   $('detailSheet').className = $('addSheet').className;
   renderChips(); S.allRows=null; closeSearch();
   loadYear(); if (curFam()) loadMembers();
@@ -1065,9 +1116,12 @@ function renderHero(){
     h('button',{type:'button',role:'menuitem',text: budget>0 ? '修改每月預算' : '設定每月預算',onclick:()=>{ menu.hidden=true; openBudget(); }}),
     h('button',{type:'button',role:'menuitem',text: op ? '修改開始資金' : '設定開始資金',onclick:()=>{ menu.hidden=true; openOpening(); }}));
   const star=h('button',{type:'button',class:'hstar','aria-label':'預算同開始資金設定','aria-haspopup':'menu',id:'heroMenuBtn',onclick:ev=>{ ev.stopPropagation(); menu.hidden=!menu.hidden; }}, icon('asterisk'));
-  box.append(h('div',{class:'hero'}, star, menu,
+  const bigEl = HIDE
+    ? h('div',{class:'big masked',role:'button',tabindex:'0','aria-label':'金額已隱藏，撳一下顯示',onclick:()=>setHide(false),onkeydown:e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); setHide(false); } }}, signed(t.net), h('span',{class:'reveal',text:'撳一下顯示'}))
+    : h('div',{class:'big',text:signed(t.net)});
+  box.append(h('div',{class:'hero'}, artEl('hero-art'), star, menu,
     h('div',{class:'lbl2',text:`${fam?fam.name+' · ':''}${Number(S.month.slice(5))}月結餘`}),
-    h('div',{class:'big',text:signed(t.net)}),
+    bigEl,
     h('div',{class:'row2'},
       h('div',{class:'pill'}, h('span',{}, h('i',{class:'dot d-inc'}),'收入'), h('b',{text:money(t.inc)})),
       h('div',{class:'pill'}, h('span',{}, h('i',{class:'dot d-exp'}),'支出'), h('b',{text:money(t.exp)}), cmp?h('small',{text:cmp}):null)),
@@ -1156,7 +1210,7 @@ function renderList(){
   if (!S.loaded) return;
   const fam=curFam(), E=S.byMonth[S.month]||[];
   if (!E.length){
-    box.append(h('div',{class:'empty'}, h('span',{text:`${monthLabel(S.month)}仲未有記錄`}), h('button',{type:'button',class:'primary',text:'＋ 記第一筆',onclick:openAdd})));
+    box.append(h('div',{class:'empty'}, artEl('empty-art'), h('span',{text:`${monthLabel(S.month)}仲未有記錄`}), h('button',{type:'button',class:'primary',text:'＋ 記第一筆',onclick:openAdd})));
     return;
   }
   const sorted=[...E].sort((a,b)=> (b.date||'').localeCompare(a.date||'') || b.at-a.at);
@@ -1253,8 +1307,9 @@ function reportMonth(box){
   box.append(h('div',{class:'stats'}, stat('結餘', signed(t.net), null, netCls(t.net)), stat('收入', money(t.inc), 'd-inc'), stat('支出', money(t.exp), 'd-exp')));
   if (!E.length){ box.append(h('p',{class:'empty',text:`${monthLabel(S.month)}未有記錄。`})); return; }
   box.append(...[catCard(E,'out'), catCard(E,'in')].filter(Boolean));
-  const L=[`屋企數簿｜${ledgerTitle()}｜${monthLabel(S.month)}`, `收入 ${money(t.inc)}`, `支出 ${money(t.exp)}`, `結餘 ${signed(t.net)}`];
+  const L=real(()=>{ const L=[`屋企數簿｜${ledgerTitle()}｜${monthLabel(S.month)}`, `收入 ${money(t.inc)}`, `支出 ${money(t.exp)}`, `結餘 ${signed(t.net)}`];
   const tc=topCats(E,'out',3); if (tc) L.push(`支出最多：${tc}`);
+  return L; });
   const share=h('section',{class:'card stack'}, h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'月結'}), h('span',{class:'aside',text:'俾長輩或者家庭群組'})));
   share.append(shareRow(L.join('\n'), share)); box.append(share);
 }
@@ -1289,9 +1344,10 @@ function reportYear(box){
       h('tbody',{}, ids.map(id=>h('tr',{}, h('td',{text:nameOf(id, (all.find(e=>e.by===id)||{}).bn)}), h('td',{text:sm(got.get(id)||0)}), h('td',{text:sm(paid.get(id)||0)}))))))));
   }
   box.append(...[catCard(all,'out'), catCard(all,'in')].filter(Boolean));
-  const L=[`屋企數簿｜${ledgerTitle()}｜${S.year}年`, `全年收入 ${money(T.inc)}`, `全年支出 ${money(T.exp)}`, `全年結餘 ${signed(T.net)}`];
+  const L=real(()=>{ const L=[`屋企數簿｜${ledgerTitle()}｜${S.year}年`, `全年收入 ${money(T.inc)}`, `全年支出 ${money(T.exp)}`, `全年結餘 ${signed(T.net)}`];
   const tc=topCats(all,'out',3); if (tc) L.push(`支出最多：${tc}`);
   L.push('逐月結餘：'); rows.filter(r=>r.n).forEach(r=>L.push(`・${Number(r.m.slice(5))}月 收 ${money(r.inc)} 支 ${money(r.exp)} 餘 ${signed(r.net)}`));
+  return L; });
   const share=h('section',{class:'card stack'}, h('div',{class:'card-h',style:'margin:0'}, h('h3',{text:'年結'}), h('span',{class:'aside',text:'俾長輩或者家庭群組'})));
   share.append(shareRow(L.join('\n'), share)); box.append(share);
   drawChart(chart, rows);
@@ -1315,7 +1371,7 @@ function drawChart(box, rows){
     const {top,step}=niceScale(Math.max(...rows.map(r=>Math.max(r.inc,r.exp))));
     const Y=v=>pt+ph-(v/top)*ph;
     const svg=sv('svg',{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':`${S.year}年每月收入同支出，數字見逐月明細`});
-    for (let v=0; v<=top+1e-6; v+=step){ const y=Math.round(Y(v))+.5; svg.append(sv('line',{class:'gl',x1:pl,x2:W-pr,y1:y,y2:y})); const t=sv('text',{class:'ax',x:pl-6,y:y+4,'text-anchor':'end'}); t.textContent=compact(v); svg.append(t); }
+    for (let v=0; v<=top+1e-6; v+=step){ const y=Math.round(Y(v))+.5; svg.append(sv('line',{class:'gl',x1:pl,x2:W-pr,y1:y,y2:y})); const t=sv('text',{class:'ax',x:pl-6,y:y+4,'text-anchor':'end'}); t.textContent=HIDE?'':compact(v); svg.append(t); }
     const band=pw/12, bw=Math.max(3,Math.min(24,(band-2-8)/2));
     const tip=h('div',{class:'tip',hidden:true});
     let active=-1; const hls=[];
@@ -1829,6 +1885,116 @@ function paintIcons(){
   $('fab').replaceChildren(icon('plus'));
   [['mPrev','left'],['mNext','right'],['rPrev','left'],['rNext','right'],['refreshBtn','refresh'],['searchBtn','search'],['closeAdd','close']].forEach(([id,ic])=>$(id).replaceChildren(icon(ic)));
 }
+// 背景圖案（全部原創簡單造型）。每個圖案喺 48×48 框入面畫：
+// body = 實色部分；holes = 挖空部分（眼、口鼻等，用 mask 做真正透明）；top = 挖空之後再畫返上面嘅小細節。
+const MOTIFS = {
+  bear: {
+    body: '<circle cx="12.5" cy="13.5" r="7"/><circle cx="35.5" cy="13.5" r="7"/><ellipse cx="24" cy="28" rx="16.5" ry="14.5"/>',
+    holes: '<circle cx="12.5" cy="13.5" r="3.2"/><circle cx="35.5" cy="13.5" r="3.2"/><circle cx="18" cy="25.5" r="2.1"/><circle cx="30" cy="25.5" r="2.1"/><ellipse cx="24" cy="33" rx="6.4" ry="4.9"/>',
+    top: '<ellipse cx="24" cy="31.2" rx="2.4" ry="1.7"/><path d="M24 32.6v2.2M21.6 35.4q2.4 1.7 4.8 0" fill="none" stroke-width="1.3" stroke-linecap="round"/>'
+  },
+  pony: {
+    body: '<path d="M13 45C9.5 35 9.5 23 15 14L16.5 3.5L22.5 11C29 12 34.5 16.5 38.5 22.5C43 28.5 41.5 35 35.5 35.2C30.5 35.3 27 32.5 23.5 31C24.2 36 25.6 40.5 28 45Z"/><path d="M15 14C9.5 14.5 7 18.5 8.2 22.5C5.4 25.5 6 29.8 8.4 31.8C6.3 35 7.4 39.2 10.4 41.5L13 45C9.5 35 9.5 23 15 14Z"/>',
+    holes: '<circle cx="25" cy="19.5" r="2.2"/><circle cx="37.2" cy="28.6" r="1.4"/><path d="M14.6 16.5C11.8 24 11.6 33 14.2 42" fill="none" stroke="#000" stroke-width="1.3" stroke-linecap="round"/><path d="M18.2 6.8L18.8 11.2" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"/>',
+    top: ''
+  },
+  cat: {
+    body: '<path d="M9.5 25L10.5 7.5L21.5 16.5Z"/><path d="M38.5 25L37.5 7.5L26.5 16.5Z"/><ellipse cx="24" cy="29" rx="16" ry="13.5"/>',
+    holes: '<path d="M12.8 19L13.4 12L18 15.6Z"/><path d="M35.2 19L34.6 12L30 15.6Z"/><ellipse cx="18" cy="27.5" rx="1.9" ry="2.6"/><ellipse cx="30" cy="27.5" rx="1.9" ry="2.6"/><path d="M22.4 32h3.2l-1.6 1.9Z"/><g fill="none" stroke="#000" stroke-width="1.1" stroke-linecap="round"><path d="M10.5 31.5l6 .6M10.8 35l5.8-1.2M37.5 31.5l-6 .6M37.2 35l-5.8-1.2M24 33.9v1.4M24 35.3q-1.8 1.6-3.4.4M24 35.3q1.8 1.6 3.4.4"/></g>',
+    top: ''
+  },
+  sakura: {
+    body: [0,72,144,216,288].map(a=>`<path transform="rotate(${a} 24 24)" d="M24 23.5C18.6 18.6 17.6 10.6 21.2 6.8L24 9.6L26.8 6.8C30.4 10.6 29.4 18.6 24 23.5Z"/>`).join(''),
+    holes: '<circle cx="24" cy="24" r="3.6"/>',
+    top: '<circle cx="24" cy="24" r="1.5"/>'
+  },
+  piggy: {
+    body: '<ellipse cx="23" cy="28" rx="16" ry="12.5"/><path d="M14 19L15.5 9.5L22.5 16Z"/><rect x="12.5" y="36" width="4.6" height="7.5" rx="1.6"/><rect x="27" y="36" width="4.6" height="7.5" rx="1.6"/><ellipse cx="39.6" cy="27.5" rx="3.6" ry="4.6"/><path d="M7.4 26.5c-3.2-1.4-4.8 2.8-1.4 3.6c1.6.4 2-.9 1.2-1.6" fill="none" stroke-width="1.7" stroke-linecap="round"/>',
+    holes: '<rect x="18.5" y="17.4" width="9.5" height="2.4" rx="1.2"/><circle cx="31.6" cy="23.6" r="1.7"/><circle cx="38.6" cy="26.2" r=".95"/><circle cx="38.6" cy="29.2" r=".95"/>',
+    top: ''
+  },
+  stars: {
+    body: '<path d="M24 5.5l5.4 11 12.1 1.8-8.8 8.5 2.1 12-10.8-5.7-10.8 5.7 2.1-12-8.8-8.5 12.1-1.8Z"/>',
+    holes: '<path d="M24 14.5l2.6 5.3 5.8.9-4.2 4.1 1 5.8L24 27.8l-5.2 2.8 1-5.8-4.2-4.1 5.8-.9Z"/>',
+    top: ''
+  }
+};
+// 每款圖案嘅「副圖」：細啲，令底紋唔會單調
+const ACCENTS = {
+  bear:   '<path d="M24 40C14 32 8 26 8 18.5 8 13 12 9.5 16.5 9.5c3.3 0 5.9 1.9 7.5 4.6 1.6-2.7 4.2-4.6 7.5-4.6C36 9.5 40 13 40 18.5 40 26 34 32 24 40Z"/>',
+  pony:   '<path d="M10 6v14a14 14 0 0 0 28 0V6h-7v14a7 7 0 0 1-14 0V6Z"/>',
+  cat:    '<ellipse cx="24" cy="31" rx="9" ry="7.5"/><ellipse cx="12.5" cy="20" rx="3.6" ry="4.6"/><ellipse cx="20" cy="13" rx="3.6" ry="4.8"/><ellipse cx="28" cy="13" rx="3.6" ry="4.8"/><ellipse cx="35.5" cy="20" rx="3.6" ry="4.6"/>',
+  sakura: '<path d="M24 41C15 33 13 19 19 10L24 15L29 10C35 19 33 33 24 41Z"/>',
+  piggy:  '<circle cx="24" cy="24" r="15"/>',
+  stars:  '<circle cx="24" cy="24" r="6"/>'
+};
+const ACCENT_HOLES = {
+  pony: '<circle cx="13.5" cy="11" r="1.4"/><circle cx="13.5" cy="17" r="1.4"/><circle cx="34.5" cy="11" r="1.4"/><circle cx="34.5" cy="17" r="1.4"/>',
+  piggy: '<circle cx="24" cy="24" r="11" fill="none" stroke="#000" stroke-width="1.6"/><path d="M27.5 18.6c-1-1.2-2.3-1.7-3.7-1.7-2.2 0-3.7 1.1-3.7 2.8 0 3.9 7.7 2.2 7.7 6.3 0 1.8-1.7 3-4 3-1.8 0-3.3-.7-4.2-1.9M23.8 14.5v2.4M23.8 29v2.5" fill="none" stroke="#000" stroke-width="1.7" stroke-linecap="round"/>'
+};
+const PATTERN_LABELS = [['none','冇'],['bear','熊仔'],['pony','小馬'],['cat','貓仔'],['sakura','櫻花'],['piggy','豬仔錢罌'],['stars','星星']];
+
+let motifSeq = 0;
+// 一個圖案（含挖空）→ SVG 片段
+function motifSVG(kind, color, tf, accent){
+  const id = 'm' + (++motifSeq);
+  const body = accent ? ACCENTS[kind] : MOTIFS[kind].body;
+  const holes = accent ? (ACCENT_HOLES[kind]||'') : MOTIFS[kind].holes;
+  const top = accent ? '' : MOTIFS[kind].top;
+  const mask = holes ? `<mask id="${id}" maskUnits="userSpaceOnUse" x="-4" y="-4" width="56" height="56"><rect x="-4" y="-4" width="56" height="56" fill="#fff"/><g fill="#000">${holes}</g></mask>` : '';
+  return `<g transform="${tf}">${mask}<g fill="${color}" stroke="${color}" stroke-width="0" ${holes?`mask="url(#${id})"`:''}>${body}</g>${top?`<g fill="${color}" stroke="${color}">${top}</g>`:''}</g>`;
+}
+// 成塊重複底紋（120×120）
+function patternTile(kind, color, opacity){
+  const t = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><g opacity="${opacity}">`
+    + motifSVG(kind, color, 'translate(8 8) scale(.78)')
+    + motifSVG(kind, color, 'translate(70 68) rotate(-14 18 18) scale(.74)')
+    + motifSVG(kind, color, 'translate(78 14) scale(.36)', true)
+    + motifSVG(kind, color, 'translate(16 78) rotate(12 9 9) scale(.36)', true)
+    + `</g></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(t)}")`;
+}
+// 單個圖案（用喺結餘卡水印、空白提示）
+function motifInline(kind, color, size){
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 48 48" aria-hidden="true">${motifSVG(kind, color, 'translate(0 0)')}</svg>`;
+}
+
+// 背景圖案：用主題主色、好淡咁鋪滿背景
+function patKind(){ const k=lsGet('pat')||'none'; return MOTIFS[k] ? k : 'none'; }
+function isDark(){ const mode=lsGet('mode')||'auto'; return mode==='dark' || (mode==='auto' && matchMedia('(prefers-color-scheme: dark)').matches); }
+function artEl(cls){
+  const k=patKind(); if (k==='none') return null;
+  const d=h('div',{class:cls,'aria-hidden':'true'}); d.innerHTML=motifInline(k,'currentColor',48); return d;
+}
+function applyPattern(){
+  const root=document.documentElement, k=patKind();
+  const app=$('app'), col=(app && !app.hidden ? getComputedStyle(app).getPropertyValue('--acc') : getComputedStyle(root).getPropertyValue('--jade')).trim()||'#0D7463', dark=isDark();
+  if (k==='none') root.style.removeProperty('--pat'); else root.style.setProperty('--pat', patternTile(k, col, dark?.14:.13));
+  const g=$('patGrid'); if (!g) return;
+  g.replaceChildren(...PATTERN_LABELS.map(([key,label])=>{
+    const b=h('button',{type:'button',class:'pat',role:'radio','aria-checked':String(key===k),'data-pat':key,onclick:()=>{ lsSet('pat',key); applyPattern(); renderAll(); }}, h('i',{}), label);
+    if (key!=='none') b.firstChild.style.backgroundImage=patternTile(key, col, dark?.32:.28);
+    return b;
+  }));
+}
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>applyPattern()); } catch {}
+// 字體大小
+const FS_CLASS={xs:'fs-xs', s:'fs-s', m:'', l:'big'};
+function applyFs(){
+  let fs=lsGet('fs'); if (!FS_CLASS.hasOwnProperty(fs)) fs = lsGet('big')==='1' ? 'l' : 'm';
+  document.body.classList.remove('fs-xs','fs-s','big'); if (FS_CLASS[fs]) document.body.classList.add(FS_CLASS[fs]);
+  $('fsSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.fs===fs)));
+}
+$('fsSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if (!b) return; lsSet('fs', b.dataset.fs); lsSet('big',''); applyFs(); if (S.tab==='report') renderReport(); });
+// 隱藏／顯示金額
+function setHide(v){
+  HIDE=!!v;
+  const b=$('eyeBtn'); b.setAttribute('aria-pressed', String(HIDE)); b.setAttribute('aria-label', HIDE?'顯示金額':'隱藏金額');
+  b.replaceChildren(icon(HIDE?'eye':'eyeoff'), h('span',{text:HIDE?'顯示金額':'隱藏金額'}));
+  renderAll(); if (!$('searchArea').hidden) doSearch();
+}
+$('eyeBtn').addEventListener('click', ()=>setHide(!HIDE));
+$('hideOnOpen').addEventListener('change', e=>{ lsSet('hideOnOpen', e.target.checked?'1':'0'); });
 const THEMES=[['jade','翠綠','#0D7463','#A8670F'],['blue','海藍','#1F5FA8','#B0632A'],['purple','紫藤','#6B4BA8','#B0567A'],['rose','玫瑰','#B03A5B','#3E7D6A'],['ink','墨灰','#2F3B44','#8A6D3B']];
 function applyLook(){
   const tc=lsGet('tc')||'jade', mode=lsGet('mode')||'auto', root=document.documentElement;
@@ -1837,15 +2003,15 @@ function applyLook(){
   const box=$('swatches'); box.replaceChildren(...THEMES.map(([k,label,a,b])=>h('button',{type:'button',class:'sw',role:'radio','aria-checked':String(k===tc),'data-tc':k,onclick:()=>{ lsSet('tc',k); applyLook(); }},
     h('i',{style:`background:linear-gradient(135deg,${a} 0 50%,${b} 50% 100%)`}), label)));
   $('modeSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.mode===mode)));
+  applyPattern();
   const meta=document.querySelector('meta[name="theme-color"]'); if (meta){ const dark = mode==='dark' || (mode==='auto' && matchMedia('(prefers-color-scheme: dark)').matches); meta.setAttribute('content', dark ? '#0E1618' : (THEMES.find(t=>t[0]===tc)||THEMES[0])[2]); meta.removeAttribute('media'); }
 }
 $('showPayer').addEventListener('change', e=>{ lsSet('showPayer', e.target.checked?'1':'0'); renderAll(); });
 ['showAvg','showYtd'].forEach(id=>$(id).addEventListener('change', e=>{ lsSet(id, e.target.checked?'1':'0'); renderAll(); }));
 $('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if (!b) return; lsSet('mode', b.dataset.mode); applyLook(); });
-function applyBig(on){ document.body.classList.toggle('big', !!on); $('bigMode').checked=!!on; }
-$('bigMode').addEventListener('change', e=>{ lsSet('big', e.target.checked?'1':''); applyBig(e.target.checked); });
 async function boot(){
-  applyBig(lsGet('big')==='1'); applyLook();
+  applyFs(); applyLook();
+  $('hideOnOpen').checked = lsGet('hideOnOpen')==='1'; HIDE = lsGet('hideOnOpen')==='1'; setHide(HIDE);
   $('showPayer').checked = lsGet('showPayer')!=='0';
   $('showAvg').checked = lsGet('showAvg')!=='0'; $('showYtd').checked = lsGet('showYtd')!=='0';
   paintIcons(); buildCats(); syncTypeUI(); setAuthMode('login');
