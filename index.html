@@ -368,24 +368,34 @@ body{background-image:var(--pat,none);background-size:120px 120px}
 .pat{border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:0 0 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12.5px;color:var(--muted);overflow:hidden}
 .pat i{display:block;width:100%;height:58px;background-size:84px 84px;background-position:center}
 .pat[aria-checked="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc);color:var(--ink);font-weight:700}
-/* 結餘卡：漸變色＋圖案水印 */
-.hero{background:linear-gradient(140deg,var(--acc) 0%,var(--acc-2) 100%)}
-.hero-art{position:absolute;right:16px;top:46px;width:62px;height:62px;opacity:.2;pointer-events:none;color:var(--on-acc)}
-.hero-art svg{width:100%;height:100%;display:block}
-.hero .big.masked{cursor:pointer;letter-spacing:.06em}
-.hero .reveal{font-size:12px;font-weight:500;letter-spacing:0;color:var(--hero-muted);margin-left:10px;vertical-align:middle}
+/* 結餘卡：淡彩卡（淡色底、深色字，冇裝飾） */
+.hero{--hc:rgba(255,255,255,.62);--ht:rgba(0,0,0,.08);--hn:var(--acc-2);background:var(--acc-soft);color:var(--ink);box-shadow:none}
+@media (prefers-color-scheme: dark){ html:not([data-mode="light"]) .hero{--hc:rgba(255,255,255,.06);--ht:rgba(255,255,255,.12);--hn:var(--acc)} }
+html[data-mode="dark"] .hero{--hc:rgba(255,255,255,.06);--ht:rgba(255,255,255,.12);--hn:var(--acc)}
+.hero::before,.hero::after{display:none}
+.hero .big{color:var(--hn)}
+.hero .lbl2,.hero .foot,.hero .pill span,.hero .pill small,.hero .budget .bt,.hero .fund span,.hero .reveal{color:var(--muted)}
+.hero .pill b,.hero .fund b,.hero .budget .bt b,.hero .setb{color:var(--ink)}
+.hero .pill,.hero .fund,.hero .budget{background:var(--hc)}
+.hero .btrack{background:var(--ht)} .hero .bfill{background:var(--acc)} .hero .bfill.warn{background:#E3A008} .hero .bfill.over{background:var(--exp)}
+.hero .hstar{background:var(--hc);color:var(--ink)}
+.hero .d-inc,.hero .d-exp{box-shadow:none}
+.day{box-shadow:none}
+.hero .big.masked{cursor:pointer;letter-spacing:-.02em}
+.hero .reveal{display:inline-block;white-space:nowrap;font-size:12px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:10px;vertical-align:middle}
 .empty{background:var(--bg)}
 .empty-art{width:64px;height:64px;opacity:.55;color:var(--acc)}
 .empty-art svg{width:100%;height:100%;display:block}
 /* 頂部「眼仔」：顯示／隱藏金額 */
 .topbar .tright{display:flex;align-items:center;gap:6px}
-.eyebtn{height:38px;border-radius:19px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:flex;align-items:center;gap:6px;padding:0 12px;font-size:13.5px;cursor:pointer;white-space:nowrap}
-.eyebtn svg{width:19px;height:19px}
-.eyebtn[aria-pressed="true"]{background:var(--acc-soft,var(--jade-soft));border-color:transparent;font-weight:700}
+.eyebtn{width:40px;height:40px;border-radius:50%;border:0;background:transparent;color:var(--ink);display:grid;place-items:center;padding:0;cursor:pointer}
+.eyebtn svg{width:21px;height:21px}
+.eyebtn:hover{background:var(--sunk)}
+.eyebtn[aria-pressed="true"]{background:var(--acc-soft,var(--jade-soft));color:var(--acc,var(--jade))}
 .brand{min-width:0} .brand b{white-space:nowrap}
 .me-chip{white-space:nowrap} #who{max-width:6em;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:429px){ #who{display:none} .me-chip{padding:4px} }
-@media (max-width:340px){ .eyebtn span{display:none} .eyebtn{padding:0 10px} .brand b{font-size:18px;letter-spacing:.04em} }
+@media (max-width:340px){ .brand b{font-size:18px;letter-spacing:.04em} }
 </style>
 </head>
 <body>
@@ -492,7 +502,7 @@ body{background-image:var(--pat,none);background-size:120px 120px}
           <button type="button" role="radio" data-fs="m" aria-checked="true">標準</button>
           <button type="button" role="radio" data-fs="l" aria-checked="false">大</button>
         </div><span class="note" style="font-size:13px">「大」適合長輩，字同掣都會大啲。</span></div>
-      <label class="setrow" for="hideOnOpen"><span>開 app 時隱藏金額<br><span class="note">金額會變做「••••」，撳頂部「顯示金額」或者結餘就即刻見返。</span></span><input type="checkbox" id="hideOnOpen"></label>
+      <label class="setrow" for="hideOnOpen"><span>開 app 時隱藏金額<br><span class="note">金額會變做「••••」，撳頂部眼仔掣或者結餘數字就即刻見返。</span></span><input type="checkbox" id="hideOnOpen"></label>
       <label class="setrow" for="showPayer"><span>家庭帳顯示邊個付／收<br><span class="note">記錄下面嘅「你付」、「媽咪收」</span></span><input type="checkbox" id="showPayer"></label>
       <label class="setrow" for="showAvg"><span>首頁顯示平均每日支出</span><input type="checkbox" id="showAvg"></label>
       <label class="setrow" for="showYtd"><span>首頁顯示今年累積</span><input type="checkbox" id="showYtd"></label>
@@ -1119,7 +1129,7 @@ function renderHero(){
   const bigEl = HIDE
     ? h('div',{class:'big masked',role:'button',tabindex:'0','aria-label':'金額已隱藏，撳一下顯示',onclick:()=>setHide(false),onkeydown:e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); setHide(false); } }}, signed(t.net), h('span',{class:'reveal',text:'撳一下顯示'}))
     : h('div',{class:'big',text:signed(t.net)});
-  box.append(h('div',{class:'hero'}, artEl('hero-art'), star, menu,
+  box.append(h('div',{class:'hero'}, star, menu,
     h('div',{class:'lbl2',text:`${fam?fam.name+' · ':''}${Number(S.month.slice(5))}月結餘`}),
     bigEl,
     h('div',{class:'row2'},
@@ -1990,7 +2000,7 @@ $('fsSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if
 function setHide(v){
   HIDE=!!v;
   const b=$('eyeBtn'); b.setAttribute('aria-pressed', String(HIDE)); b.setAttribute('aria-label', HIDE?'顯示金額':'隱藏金額');
-  b.replaceChildren(icon(HIDE?'eye':'eyeoff'), h('span',{text:HIDE?'顯示金額':'隱藏金額'}));
+  b.replaceChildren(icon(HIDE?'eye':'eyeoff')); b.title = HIDE?'顯示金額':'隱藏金額';
   renderAll(); if (!$('searchArea').hidden) doSearch();
 }
 $('eyeBtn').addEventListener('click', ()=>setHide(!HIDE));

@@ -1,5 +1,5 @@
 // 屋企數簿：離線用。網頁檔案用「網絡優先、斷網用快取」；資料庫請求（Google）唔經呢度。
-const CACHE = 'ukei-v9';
+const CACHE = 'ukei-v10';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
